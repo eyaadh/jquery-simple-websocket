@@ -1,3 +1,5 @@
+TODO rewrite, work in progress
+
 Send and receive the JSON object directly with Web Sockets API.
 
 # This is a fork
