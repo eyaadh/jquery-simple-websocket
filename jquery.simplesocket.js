@@ -92,8 +92,8 @@
                 message: function(message) {
                     for (var i=0, len=_listeners.length; i<len; i++) {
                         try {
-                            console.log(message);
                             _listeners[i].deferred.notify(message);
+                            _listeners[i].listener.apply(this, [message]);
                         } catch (error) {
                             _listeners[i].deferred.reject(error);
                         }
@@ -198,8 +198,11 @@
                     d.reject(new Error('Listener already listening.'));
                 } else {
                     var d = jQuery.Deferred();
-                    d.notify(function() {
-                        listener.apply(this, arguments);
+                    d.progress(function() {
+                        // TODO remove or figure why progress isn't invoked
+                        console.log('progress');
+                        console.log(arguments);
+                        // listener.apply(this, arguments);
                     });
                     _listeners.push({ 'deferred': d, 'listener': listener });
                 }

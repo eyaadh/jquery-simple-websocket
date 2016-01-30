@@ -21,7 +21,7 @@ wsServer.on('request', function(request) {
     // all messages from users here.
     connection.on('message', function(message) {
         console.log(message);
-        connection.send(JSON.stringify(message));
+        connection.send(message.utf8Data);
     });
 
     connection.on('close', function(connection) {
