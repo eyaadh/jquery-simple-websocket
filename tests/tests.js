@@ -22,7 +22,7 @@ describe('jQuery Simple Web Socket', function() {
     });
 
 
-    it('receives echo msg from nodejs server', function(done) {
+    it('receives echo msg from server', function(done) {
         simpleWebSocket.connect().done(function() {
             expect(simpleWebSocket.isConnected()).toBe(true);
 
@@ -43,6 +43,22 @@ describe('jQuery Simple Web Socket', function() {
     });
 
 
+    it('connects automatically, receiving echo msg', function(done) {
+        simpleWebSocket.listen(function(data) {
+            expect(data.msg).toBe('hello echo');
+            done();
+        }).fail(function() {
+            expect(true).toBe(false);
+            done();
+        });
+
+        simpleWebSocket.send({'msg': 'hello echo'}).fail(function() {
+            expect(simpleWebSocket.isConnected()).toBe(true);
+        });
+    });
+
+
+    // last test, ends server process
     it('reconnects', function(done) {
 
         simpleWebSocket.connect().done(function() {
@@ -55,12 +71,21 @@ describe('jQuery Simple Web Socket', function() {
 
                 delayedWebSocket.connect().done(function() {
                     console.log('reconnected');
-                    expect(simpleWebSocket.isConnected()).toBe(true);
-                    done();
                 }).fail(function() {
                     console.log('reconnection failed');
                     expect(true).toBe(false);
+                });
+
+                delayedWebSocket.listen(function(data) {
+                    expect(data.msg).toBe('hello echo');
                     done();
+                }).fail(function() {
+                    expect(true).toBe(false);
+                    done();
+                });
+
+                delayedWebSocket.send({'msg': 'hello echo'}).fail(function() {
+                    expect(delayedWebSocket.isConnected()).toBe(true);
                 });
             });
         }).fail(function(e) {

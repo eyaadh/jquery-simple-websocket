@@ -14,33 +14,24 @@
     <script>
         var webSocket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3000/' });
 
-        webSocket.connect().done(function() {
-            webSocket.listen(function(message) {
-                $('#content').prepend(message.text+'\n');
-            }).fail(function(e) {
-                // your error handling e. g.
-                console.log(e);
-            });
-
-            webSocket.send({ 'text': 'echo' }).fail(function(e) {
-                // your error handling e. g.
-                console.log(e);
-            });
-
-            $('#message').change(function() {
-                webSocket.send({ 'text': this.value }).fail(function(e) {
-                    // your error handling e. g.
-                    console.log(e);
-                });
-                this.value = '';
-            });
-
-            $('#message').focus();
+        webSocket.listen(function(message) {
+            $('#content').prepend(message.text+'\n');
         }).fail(function(e) {
-            console.log('failed opening websocket');
+            // your error handling e. g.
             console.log(e);
         });
 
+        $('#message').change(function() {
+
+            webSocket.send({ 'text': this.value }).fail(function(e) {
+                // your error handling e. g.
+                console.log(e);
+            });
+
+            this.value = '';
+        });
+
+        $('#message').focus();
     </script>
 </body>
 </html>

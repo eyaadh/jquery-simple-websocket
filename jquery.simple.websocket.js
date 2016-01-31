@@ -90,7 +90,6 @@
                     for (var i=0, len=_listeners.length; i<len; i++) {
                         try {
                             _listeners[i].deferred.notify(message);
-                            _listeners[i].listener.apply(this, [message]);
                         } catch (error) {
                             _listeners[i].deferred.reject(error);
                         }
@@ -152,19 +151,16 @@
 
          var _send = function(data) {
              var attempt = jQuery.Deferred();
-             if (!_isConnected()) {
-                 (function(json) {
-                     _reConnect().done(function(ws) {
-                         ws.send(json);
-                         attempt.resolve();
-                     }).fail(function() {
-                         attempt.rejectWith();
-                     });
-                 })(JSON.stringify(data));
-             } else {
-                 _ws.send(JSON.stringify(data));
-                 attempt.resolve();
-             }
+
+             (function(json) {
+                 _reConnect().done(function(ws) {
+                     ws.send(json);
+                     attempt.resolve();
+                 }).fail(function() {
+                     attempt.rejectWith();
+                 });
+             })(JSON.stringify(data));
+
              return attempt.promise();
          };
 
@@ -198,6 +194,27 @@
             }
          };
 
+         var _listen = function(listener) {
+            var d = jQuery.Deferred();
+
+            _reConnect().done(function() {
+                if (_indexOfListener(listener) !== -1) {
+                    d.reject(new Error('Listener already listening.'));
+                } else {
+                    d.progress(function() {
+                        console.log('progress');
+                        console.log(arguments);
+                        listener.apply(this, arguments);
+                    });
+                    _listeners.push({ 'deferred': d, 'listener': listener });
+                }
+            }).fail(function(e) {
+                d.reject(e);
+            });
+
+            return d.promise();
+         }
+
          var api = {
 
              init: function(opt) {
@@ -217,20 +234,7 @@
              },
 
              listen: function(listener) {
-                var d = jQuery.Deferred();
-                if (_indexOfListener(listener) !== -1) {
-                    d.reject(new Error('Listener already listening.'));
-                } else {
-                    var d = jQuery.Deferred();
-                    d.progress(function() {
-                        // TODO remove or figure why progress isn't invoked
-                        console.log('progress');
-                        console.log(arguments);
-                        // listener.apply(this, arguments);
-                    });
-                    _listeners.push({ 'deferred': d, 'listener': listener });
-                }
-                return d.promise();
+                return _listen(listener);
              },
 
              remove: function(listener) {
