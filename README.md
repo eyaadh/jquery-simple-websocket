@@ -15,7 +15,7 @@ TODO
 
 ## Example
 
-- start websocket echo server: node tests/server.js
+- start nodejs websocket server: node tests/server.js
 - open tests/example.html
 
 # License

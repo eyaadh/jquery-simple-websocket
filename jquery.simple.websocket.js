@@ -72,11 +72,8 @@
                 open: function(e) {
                     console.log('socket open');
                     var sock = this;
-                    // caution, only resolves when called 2nd time (ff)
                     if (attempt) {
-                        window.setTimeout(function() {
-                            attempt.resolve(sock);
-                        }, 20);
+                        attempt.resolve(sock);
                     }
                 },
                 close: function(e) {
@@ -111,6 +108,14 @@
              return attempt.promise();
          };
 
+         var _close = function() {
+            if (_ws) {
+                _ws.close();
+                _ws = null;
+                _reConnectDeferred = null;
+            }
+         };
+
          var _isConnected = function() {
              return _ws !== null && _ws.readyState === 1;
          }
@@ -122,7 +127,7 @@
                  _reConnectDeferred = jQuery.Deferred();
              }
 
-             if (_ws.readyState === 1) {
+             if (_ws && _ws.readyState === 1) {
                  console.log('reconnected');
                  _reConnectDeferred.resolve(_ws);
              } else {
@@ -184,7 +189,7 @@
          }
 
          var _init = function(opt) {
-            console.log(opt);
+            // TODO add reconnect timeout options
             if (opt !== null && _isNotEmpty(opt, 'url')) {
                 _opt = opt;
             } else {
@@ -235,8 +240,13 @@
              remove: function(listener) {
                 var index = _indexOfListener(listener);
                 if (index !== -1) {
+                    _listeners[i].deferred.resolve();
                     _listeners.splice(index, 1);
                 }
+             },
+
+             close: function() {
+                  _close();
              }
          };
          return api;
