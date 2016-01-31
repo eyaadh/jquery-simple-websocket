@@ -1,17 +1,35 @@
-Send and receive JSON objects via a single websocket.
-
-## History
-- jQuery Simple Web Socket has been forked from https://github.com/dchelimsky/jquery-websocket
-- which originates from http://code.google.com/p/jquery-websocket/
+# jQuery Simple WebSocket
+Send and receive JSON objects via a single gracefull websocket using a fluent deferred interface, queuing messages.
 
 # Usage
-TODO
+```
+var socket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3000/' });
 
-## Connection
-TODO
+socket.connect();
 
-## Sending Message
-TODO
+socket.isConnected();
+
+socket.isConnected(callback);
+
+socket.send({'foo': 'bar'});
+
+socket.listen(function(data) {});
+
+socket.remove(callback);
+
+socket.close();
+```
+
+Note: if you want to send messages to another socket, close the previous socket e. g.:
+```
+var socket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3000/' });
+socket.send({'data': 'characters'});
+
+socket.close();
+
+socket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3000/' });
+socket.send({'data': 'characters'});
+```
 
 ## Example
 
@@ -30,13 +48,17 @@ webSocket.send({ 'text': this.value }).fail(function(e) {
 ```
 
 ### Web Chat Example
-- start nodejs websocket server: node tests/server.js
-- open tests/example.html
+- start nodejs websocket server:
+```
+$ node tests/server.js
+```
+- open tests/example.html in your browser
+
+# History
+- jQuery Simple Web Socket has been forked from https://github.com/dchelimsky/jquery-websocket
+- which originates from http://code.google.com/p/jquery-websocket/
 
 # License
-
-mixed license:
-
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -49,7 +71,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-original:
+previously:
 
 The MIT License (MIT)
 

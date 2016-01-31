@@ -33,7 +33,7 @@
             }
 
             if (!ws) {
-                return null;
+                throw new Error('Error, websocket could not be initialized.');
             }
 
             $(ws).bind('open', opt.open)
@@ -208,22 +208,28 @@
 
              init: function(opt) {
                 _init(opt);
+                return api;
              },
 
              connect: function() {
-               return _reConnect();
+               return $.extend(api, _reConnect());
              },
 
-             isConnected: function() {
-                return _isConnected();
+             isConnected: function(callback) {
+                if (callback) {
+                    callback.apply(this, [_isConnected()]);
+                    return api;
+                } else {
+                    return _isConnected();
+                }
              },
 
              send: function(data) {
-                return _send(data);
+                return $.extend(api, _send(data));
              },
 
              listen: function(listener) {
-                return _listen(listener);
+                return $.extend(api, _listen(listener));
              },
 
              remove: function(listener) {
@@ -232,10 +238,12 @@
                     _listeners[i].deferred.resolve();
                     _listeners.splice(index, 1);
                 }
+                return api;
              },
 
              close: function() {
                   _close();
+                  return api;
              }
          };
          return api;
