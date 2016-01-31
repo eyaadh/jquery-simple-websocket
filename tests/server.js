@@ -22,7 +22,7 @@ var echoRequestHandler = function(request) {
     // all messages from users here.
     connection.on('message', function(message) {
         console.log(message);
-        if (message.utf8Data === '{"cmd":"spanFiveMinServer"}') {
+        if (message.utf8Data === '{"cmd":"spawnFiveMinServer"}') {
             console.log('delay server spawn 15s');
             setTimeout(function() {
                 console.log('spawn 5min server');

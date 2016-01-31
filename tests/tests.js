@@ -48,12 +48,12 @@ describe('jQuery Simple Web Socket', function() {
         simpleWebSocket.connect().done(function() {
             expect(simpleWebSocket.isConnected()).toBe(true);
 
-            simpleWebSocket.send({'cmd': 'spanFiveMinServer'}).done(function() {
+            simpleWebSocket.send({'cmd': 'spawnFiveMinServer'}).done(function() {
                 console.log('reconnect test');
                 simpleWebSocket.close();
                 delayedWebSocket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3001/' });
 
-                delayedWebSocket.reConnect().done(function() {
+                delayedWebSocket.connect().done(function() {
                     console.log('reconnected');
                     expect(simpleWebSocket.isConnected()).toBe(true);
                     done();

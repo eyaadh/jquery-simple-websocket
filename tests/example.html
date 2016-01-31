@@ -14,7 +14,7 @@
     <script>
         var webSocket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3000/' });
 
-        webSocket.reConnect().done(function() {
+        webSocket.connect().done(function() {
             webSocket.listen(function(message) {
                 $('#content').prepend(message.text+'\n');
             }).fail(function(e) {

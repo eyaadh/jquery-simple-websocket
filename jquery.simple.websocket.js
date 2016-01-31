@@ -205,11 +205,7 @@
              },
 
              connect: function() {
-               return _connect();
-             },
-
-             reConnect: function() {
-                return _reConnect();
+               return _reConnect();
              },
 
              isConnected: function() {
