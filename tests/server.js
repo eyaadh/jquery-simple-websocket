@@ -13,7 +13,7 @@ wsServer = new WebSocketServer({
     httpServer: server
 });
 
-
+var serverSpawned = false;
 var echoRequestHandler = function(request) {
 
     var connection = request.accept(null, request.origin);
@@ -23,11 +23,14 @@ var echoRequestHandler = function(request) {
     connection.on('message', function(message) {
         console.log(message);
         if (message.utf8Data === '{"cmd":"spawnFiveMinServer"}') {
-            console.log('delay server spawn 15s');
-            setTimeout(function() {
-                console.log('spawn 5min server');
-                spawnFiveMinServer();
-            }, 15000);
+            if (!serverSpawned) {
+                console.log('delay server spawn 15s');
+                setTimeout(function() {
+                    console.log('spawn 5min server');
+                    spawnFiveMinServer();
+                }, 15000);
+                serverSpawned = true;
+            }
         }
         connection.send(message.utf8Data);
     });

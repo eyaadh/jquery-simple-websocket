@@ -54,11 +54,9 @@
          };
 
          var _connect = function() {
-             console.log('connection attempt');
              var attempt = jQuery.Deferred();
              if (_ws) {
                  if (_ws.readyState === 1) {
-                     console.log('connected');
                      attempt.resolve(_ws);
                      return attempt.promise();
                  } else {
@@ -70,14 +68,12 @@
             _ws = _webSocket({
                 'url': _opt.url,
                 open: function(e) {
-                    console.log('socket open');
                     var sock = this;
                     if (attempt) {
                         attempt.resolve(sock);
                     }
                 },
                 close: function(e) {
-                    console.log('close');
                     for (var i=0, len=_listeners.length; i<len; i++) {
                         _listeners[i].deferred.resolve();
                     }
@@ -96,8 +92,6 @@
                     }
                 },
                 error: function(e) {
-                    console.log('error');
-                    console.log(e);
                     if (attempt) {
                         attempt.rejectWith(e);
                     }
@@ -120,27 +114,22 @@
          }
 
          var _reConnect = function() {
-             console.log('reconnect');
              if (!_reConnectDeferred || _reConnectDeferred.state() !== 'pending') {
                  _reConnectTries = 60; // 10min
                  _reConnectDeferred = jQuery.Deferred();
              }
 
              if (_ws && _ws.readyState === 1) {
-                 console.log('reconnected');
                  _reConnectDeferred.resolve(_ws);
              } else {
                  _connect().done(function() {
-                     console.log('reconnected');
                     _reConnectDeferred.resolve(_ws);
                  }).fail(function() {
-                    console.log('reconnect retry: '+_reConnectTries);
                     if (_reConnectTries-- > 0) {
                        window.setTimeout(function() {
                            _reConnect();
                        }, 10000);
                     } else {
-                       console.log('reconnect failed');
                        _reConnectDeferred.rejectWith();
                     }
                  });
@@ -189,7 +178,6 @@
             if (opt !== null && _isNotEmpty(opt, 'url')) {
                 _opt = opt;
             } else {
-                console.log('error');
                 throw new Error("Missing argument, example usage: $.simpleWebSocket({ url: 'ws://127.0.0.1:3000' }); ");
             }
          };
@@ -202,8 +190,6 @@
                     d.reject(new Error('Listener already listening.'));
                 } else {
                     d.progress(function() {
-                        console.log('progress');
-                        console.log(arguments);
                         listener.apply(this, arguments);
                     });
                     _listeners.push({ 'deferred': d, 'listener': listener });
