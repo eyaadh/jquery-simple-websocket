@@ -1,82 +1,40 @@
-TODO rewrite, work in progress
+Send and receive JSON objects via a single websocket.
 
-Send and receive the JSON object directly with Web Sockets API.
-
-# This is a fork
-
-http://code.google.com/p/jquery-websocket/ had several issues reported
-but no activity in the code since 2010. I needed to make a change and
-decided I might as well fork and post it. There have been a few contributions
-as a result, which is great to see (thank you, contributors!).
-
-There are, however, no automated tests! "WAT?", you ask! Yes, its
-true. No tests. You've been warned.
+## History
+- jQuery Simple Web Socket has been forked from https://github.com/dchelimsky/jquery-websocket
+- which originates from http://code.google.com/p/jquery-websocket/
 
 # Usage
+TODO
 
 ## Connection
-
-    var ws = $.websocket("ws://127.0.0.1:8080/");
+TODO
 
 ## Sending Message
+TODO
 
-    ws.send('hello');                          // sending message is '{type:'hello'}'.
-    ws.send('say', {name:'foo', text:'baa'});  // sending message is '{type:'say', data:{name:'foo', text:'baa'}}'
+## Example
 
-## Event Handling
-
-    var ws = $.websocket("ws://127.0.0.1:8080/", {
-        open: function() { ... },
-        close: function() { ... },
-        events: {
-            say: function(e) {
-                alert(e.data.name); // 'foo'
-                alert(e.data.text); // 'baa'
-            }
-        }
-    });
-
-# Example
-
-
-    <!doctype html>
-    <html>
-      <head>
-        <meta charset="UTF-8">
-        <title>WebSocket Chat</title>
-      </head>
-      <body>
-        <h1>WebSocket Chat</h1>
-        <section id="content"></section>
-        <input id="message" type="text"/>
-        <script src="http://www.google.com/jsapi"></script>
-        <script>google.load("jquery", "1.3")</script>
-        <script src="https://raw.github.com/douglascrockford/JSON-js/master/json2.js"></script>
-        <script src="https://raw.github.com/dchelimsky/jquery-websocket/v0.0.4/jquery.websocket.js"></script>
-        <script>
-          var ws = $.websocket("ws://127.0.0.1:8080/", {
-              events: {
-                  message: function(e) { $('#content').append(e.data + '<br>') }
-              }
-          });
-          $('#message').change(function(){
-              ws.send('message', this.value);
-              this.value = '';
-          });
-        </script>
-      </body>
-    </html>
-
-## Note on ECMA5cript 5 JSON API compatibility
-
-Version 0.3 and below explicitly depended on the [jquery-json](https://code.google.com/p/jquery-json/) library to define the `$.evalJSON` and `$.toJSON` methods. This requirement has been replaced in subsequent versions by a dependency on the JSON parsing and serialization API defined in ECMAScript5 ([described thoroughly here](http://ejohn.org/blog/ecmascript-5-strict-mode-json-and-more/)).
-
-When upgrading from 0.0.3, you must do one of the following:
-
-1. Replace your usage of jquery-json with a library that defines `JSON.parse` and `JSON.stringify` for browsers that do not support them natively. json2.js from the [JSON-js](https://github.com/douglascrockford/JSON-js) library is a good choice.
-2. Provide your own implementations of those methods or otherwise deal on your own with browsers that do not support them natively.
+- start websocket echo server: node tests/server.js
+- open tests/example.html
 
 # License
+
+mixed license:
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+original:
 
 The MIT License (MIT)
 

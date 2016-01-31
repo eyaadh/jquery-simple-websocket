@@ -17,7 +17,7 @@
 * under the License.
 */
 (function($){
-    var SimpleSocket = (function() {
+    var SimpleWebSocket = (function() {
          var _opt;
          var _ws;
          var _reconnectTries;
@@ -100,6 +100,8 @@
                     }
                 },
                 error: function(e) {
+                    console.log('error');
+                    console.log(e);
                     if (attempt) {
                         attempt.rejectWith(e);
                     }
@@ -170,10 +172,31 @@
             return -1;
          };
 
+         var _isNotEmpty = function(obj, property) {
+            return typeof obj !== 'undefined' &&
+                    obj !== null &&
+                    typeof property !== 'undefined' &&
+                    property !== null &&
+                    property !== '' &&
+                    typeof obj[property] !== 'undefined' &&
+                    obj[property] !== null &&
+                    obj[property] !== '';
+         }
+
+         var _init = function(opt) {
+            console.log(opt);
+            if (opt !== null && _isNotEmpty(opt, 'url')) {
+                _opt = opt;
+            } else {
+                console.log('error');
+                throw new Error("Missing argument, example usage: $.simpleWebSocket({ url: 'ws://127.0.0.1:3000' }); ");
+            }
+         };
+
          var api = {
 
              init: function(opt) {
-                _opt = opt;
+                _init(opt);
              },
 
              connect: function() {
@@ -220,9 +243,9 @@
      })();
 
     $.extend({
-        simpleSocket: function(opt) {
-            SimpleSocket.init(opt);
-            return SimpleSocket;
+        simpleWebSocket: function(opt) {
+            SimpleWebSocket.init(opt);
+            return SimpleWebSocket;
         }
     });
 })(jQuery);
