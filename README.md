@@ -15,6 +15,21 @@ TODO
 
 ## Example
 
+```
+var webSocket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3000/' });
+
+webSocket.listen(function(message) {
+    console.log(message.text);
+}).fail(function(e) {
+    console.log(e);
+});
+
+webSocket.send({ 'text': this.value }).fail(function(e) {
+    console.log(e);
+});
+```
+
+### Web Chat Example
 - start nodejs websocket server: node tests/server.js
 - open tests/example.html
 

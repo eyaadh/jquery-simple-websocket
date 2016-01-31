@@ -1,10 +1,14 @@
-describe('jQuery Simple Web Socket', function() {
+describe('jQuery Deferred Web Socket', function() {
     var simpleWebSocket;
 
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000; // 1min
 
     beforeEach(function() {
-        simpleWebSocket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3000/' });
+        simpleWebSocket = $.simpleWebSocket({
+            url: 'ws://127.0.0.1:3000/',
+            attempts: 60, // default values
+            timeout: 10000
+        });
     });
 
     afterEach(function() {

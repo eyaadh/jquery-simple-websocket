@@ -25,32 +25,30 @@
          var _listeners = [];
 
          var _webSocket = function(opt) {
-             var ws;
-             if (opt.protocols) {
-                 ws = window['MozWebSocket'] ? new MozWebSocket(opt.url, opt.protocols) : window['WebSocket'] ? new WebSocket(opt.url, opt.protocols) : null;
-             } else {
-                 ws = window['MozWebSocket'] ? new MozWebSocket(opt.url) : window['WebSocket'] ? new WebSocket(opt.url) : null;
-             }
+            var ws;
+            if (opt.protocols) {
+                ws = window['MozWebSocket'] ? new MozWebSocket(opt.url, opt.protocols) : window['WebSocket'] ? new WebSocket(opt.url, opt.protocols) : null;
+            } else {
+                ws = window['MozWebSocket'] ? new MozWebSocket(opt.url) : window['WebSocket'] ? new WebSocket(opt.url) : null;
+            }
 
-             if (!ws) {
-                 return null;
-             }
+            if (!ws) {
+                return null;
+            }
 
-             $(ws).bind('open', opt.open)
-             .bind('close', opt.close)
-             .bind('message', function(e) {
+            $(ws).bind('open', opt.open)
+            .bind('close', opt.close)
+            .bind('message', function(e) {
                 var json = $.evalJSON(e.originalEvent.data);
                 if (opt[e.type]) {
                     opt[e.type].call(this, json);
                 }
-             });
-             ws.onerror = function(e) { // cross-browser
-                 if (opt.error) {
-                     opt.error.call(this, e);
-                 }
-             };
-
-             return ws;
+            }).bind('error', function(e) {
+                if (opt.error) {
+                    opt.error.call(this, e);
+                }
+            });
+            return ws;
          };
 
          var _connect = function() {
@@ -65,8 +63,7 @@
                  }
              }
 
-            _ws = _webSocket({
-                'url': _opt.url,
+            _ws = _webSocket($.extend(_opt, {
                 open: function(e) {
                     var sock = this;
                     if (attempt) {
@@ -96,7 +93,7 @@
                         attempt.rejectWith(e);
                     }
                 }
-            });
+            }));
 
              return attempt.promise();
          };
@@ -115,7 +112,7 @@
 
          var _reConnect = function() {
              if (!_reConnectDeferred || _reConnectDeferred.state() !== 'pending') {
-                 _reConnectTries = 60; // 10min
+                 _reConnectTries = _prop(_opt, 'attempts', 60); // default 10min
                  _reConnectDeferred = jQuery.Deferred();
              }
 
@@ -128,7 +125,7 @@
                     if (_reConnectTries-- > 0) {
                        window.setTimeout(function() {
                            _reConnect();
-                       }, 10000);
+                       }, _prop(_opt, 'timeout', 10000));
                     } else {
                        _reConnectDeferred.rejectWith();
                     }
@@ -163,7 +160,7 @@
          };
 
          var _isNotEmpty = function(obj, property) {
-            return typeof obj !== 'undefined' &&
+                return typeof obj !== 'undefined' &&
                     obj !== null &&
                     typeof property !== 'undefined' &&
                     property !== null &&
@@ -173,9 +170,15 @@
                     obj[property] !== '';
          }
 
+         var _prop = function(obj, property, defaultValue) {
+             if (_isNotEmpty(obj, property)) {
+                return obj[property];
+             }
+            return defaultValue;
+         }
+
          var _init = function(opt) {
-            // TODO add reconnect timeout options
-            if (opt !== null && _isNotEmpty(opt, 'url')) {
+            if (_isNotEmpty(opt, 'url')) {
                 _opt = opt;
             } else {
                 throw new Error("Missing argument, example usage: $.simpleWebSocket({ url: 'ws://127.0.0.1:3000' }); ");
