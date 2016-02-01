@@ -4,21 +4,26 @@ Send and receive JSON objects via a single gracefull websocket and use a fluent 
 ## Example
 
 ```
-var webSocket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3000/' });
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-json/2.5.1/jquery.json.min.js"></script>
+<script type="text/javascript" src="jquery.simple.websocket.js"></script>
+<script type="text/javascript">
+    var webSocket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3000/' });
 
-webSocket.listen(function(message) {
-    console.log(message.text);
-}).done(function() {
-    // socket closed or listener removed
-}).fail(function(e) {
-    // error occurred
-});
+    webSocket.listen(function(message) {
+        console.log(message.text);
+    }).done(function() {
+        // socket closed or listener removed
+    }).fail(function(e) {
+        // error occurred
+    });
 
-webSocket.send({ 'text': 'hello' }).done(function() {
-    // message send
-}).fail(function(e) {
-    // error sending
-});
+    webSocket.send({ 'text': 'hello' }).done(function() {
+        // message send
+    }).fail(function(e) {
+        // error sending
+    });
+</script>
 ```
 
 or fluent:
