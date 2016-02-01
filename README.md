@@ -39,13 +39,16 @@ $ node tests/server.js
 
 # Usage
 ```
-var socket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3000/' });
+var socket = $.simpleWebSocket({
+                                 url: 'ws://127.0.0.1:3000/',
+                                 protocols: 'your_protocol',
+                                 timeout: 20000, // timeout between connection attempts
+                                 attempts: 60 // how many attempts until closing connection
+                               });
 
 socket.connect();
 
-socket.isConnected();
-
-socket.isConnected(callback);
+socket.isConnected(); // or: socket.isConnected(function(connected) {});
 
 socket.send({'foo': 'bar'});
 
