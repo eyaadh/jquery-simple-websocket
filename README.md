@@ -17,33 +17,26 @@ webSocket.listen(function(message) {
 webSocket.send({ 'text': 'hello' }).done(function() {
     // message send
 }).fail(function(e) {
-    // error sending, for example reconnect timeout
+    // error sending
 });
 ```
 
 or fluent:
 ```
-$.simpleWebSocket({ url: 'ws://127.0.0.1:3000/' })
+var webSocket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3000/' })
 .listen(function(message) { console.log('listener1: '+message.text); }).fail(function(e) { console.log(e); })
 .listen(function(message) { console.log('listener2: '+message.text); }).fail(function(e) { console.log(e); })
 .listen(function(message) { console.log('listener3: '+message.text); }).fail(function(e) { console.log(e); })
 .send({'text': 'hello'});
 ```
 
-### Web Chat Example
-- start nodejs websocket server:
-```
-$ node tests/server.js
-```
-- open tests/example.html
-
 # Usage
 ```
 var socket = $.simpleWebSocket({
                                  url: 'ws://127.0.0.1:3000/',
-                                 protocols: 'your_protocol',
-                                 timeout: 20000, // timeout between connection attempts
-                                 attempts: 60 // how many attempts until closing connection
+                                 protocols: 'your_protocol', // optional
+                                 timeout: 20000, // optional, default timeout between connection attempts
+                                 attempts: 60 // optional, default attempts until closing connection
                                });
 
 socket.connect();
@@ -68,6 +61,13 @@ socket.close();
 socket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3002/' });
 socket.listen(function(message) { console.log(message); });
 ```
+
+### Web Chat Example
+- start nodejs websocket server:
+```
+$ node tests/server.js
+```
+- open tests/example.html
 
 # History
 - jQuery Simple Web Socket has been forked from https://github.com/dchelimsky/jquery-websocket

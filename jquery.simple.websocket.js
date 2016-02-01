@@ -121,13 +121,13 @@
              } else {
                  _connect().done(function() {
                     _reConnectDeferred.resolve(_ws);
-                 }).fail(function() {
+                 }).fail(function(e) {
                     if (_reConnectTries-- > 0) {
                        window.setTimeout(function() {
                            _reConnect();
                        }, _prop(_opt, 'timeout', 10000));
                     } else {
-                       _reConnectDeferred.rejectWith();
+                       _reConnectDeferred.rejectWith(e);
                     }
                  });
              }
@@ -142,8 +142,8 @@
                  _reConnect().done(function(_ws) {
                      _ws.send(json);
                      attempt.resolve(simpleWebSocket);
-                 }).fail(function() {
-                     attempt.rejectWith();
+                 }).fail(function(e) {
+                     attempt.rejectWith(e);
                  });
              })(JSON.stringify(data), api);
 
