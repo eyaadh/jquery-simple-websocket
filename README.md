@@ -1,5 +1,41 @@
 # jQuery Simple WebSocket
-Send and receive JSON objects via a single gracefull websocket using a fluent deferred interface, queuing messages.
+Send and receive JSON objects via a single gracefull websocket and use a fluent deferred interface, queuing messages.
+
+## Example
+
+```
+var webSocket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3000/' });
+
+webSocket.listen(function(message) {
+    console.log(message.text);
+}).done(function() {
+    // socket closed or listener removed
+}).fail(function(e) {
+    // error occurred
+});
+
+webSocket.send({ 'text': 'hello' }).done(function() {
+    // message send
+}).fail(function(e) {
+    // error sending, for example reconnect timeout
+});
+```
+
+or fluent:
+```
+$.simpleWebSocket({ url: 'ws://127.0.0.1:3000/' })
+.listen(function(message) { console.log('listener1: '+message.text); }).fail(function(e) { console.log(e); })
+.listen(function(message) { console.log('listener2: '+message.text); }).fail(function(e) { console.log(e); })
+.listen(function(message) { console.log('listener3: '+message.text); }).fail(function(e) { console.log(e); })
+.send({'text': 'hello'});
+```
+
+### Web Chat Example
+- start nodejs websocket server:
+```
+$ node tests/server.js
+```
+- open tests/example.html
 
 # Usage
 ```
@@ -15,44 +51,20 @@ socket.send({'foo': 'bar'});
 
 socket.listen(function(data) {});
 
-socket.remove(callback);
+socket.remove(listenerCallback);
 
 socket.close();
 ```
-
-Note: if you want to send messages to another socket, close the previous socket e. g.:
+Note: if you want to send messages / listen to another socket, close the previous socket e. g.:
 ```
-var socket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3000/' });
+var socket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3001/' });
 socket.send({'data': 'characters'});
 
 socket.close();
 
-socket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3000/' });
-socket.send({'data': 'characters'});
+socket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3002/' });
+socket.listen(function(message) { console.log(message); });
 ```
-
-## Example
-
-```
-var webSocket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3000/' });
-
-webSocket.listen(function(message) {
-    console.log(message.text);
-}).fail(function(e) {
-    console.log(e);
-});
-
-webSocket.send({ 'text': this.value }).fail(function(e) {
-    console.log(e);
-});
-```
-
-### Web Chat Example
-- start nodejs websocket server:
-```
-$ node tests/server.js
-```
-- open tests/example.html in your browser
 
 # History
 - jQuery Simple Web Socket has been forked from https://github.com/dchelimsky/jquery-websocket

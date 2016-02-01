@@ -138,14 +138,14 @@
          var _send = function(data) {
              var attempt = jQuery.Deferred();
 
-             (function(json) {
-                 _reConnect().done(function(ws) {
-                     ws.send(json);
-                     attempt.resolve();
+             (function(json, simpleWebSocket) {
+                 _reConnect().done(function(_ws) {
+                     _ws.send(json);
+                     attempt.resolve(simpleWebSocket);
                  }).fail(function() {
                      attempt.rejectWith();
                  });
-             })(JSON.stringify(data));
+             })(JSON.stringify(data), api);
 
              return attempt.promise();
          };
@@ -242,8 +242,8 @@
              },
 
              close: function() {
-                  _close();
-                  return api;
+                _close();
+                return api;
              }
          };
          return api;
