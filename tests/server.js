@@ -10,21 +10,23 @@ wsServer = new WebSocketServer({
 });
 
 var serverSpawned = false;
+var port = 3001;
 var echoRequestHandler = function(request) {
 
     var connection = request.accept(null, request.origin);
 
     connection.on('message', function(message) {
         console.log(message);
-        if (message.utf8Data === '{"cmd":"spawnFiveMinServer"}') {
+        if (message.utf8Data === '{"cmd":"spawnServer"}') {
             if (!serverSpawned) {
                 console.log('delay server spawn 15s');
                 setTimeout(function() {
-                    console.log('spawn 5min server');
-                    spawnFiveMinServer();
+                    spawnServer(port++);
                 }, 15000);
                 serverSpawned = true;
             }
+        } else if (message.utf8Data === '{"cmd":"throw error"}') {
+            throw new Error("error");
         }
         connection.send(message.utf8Data);
     });
@@ -37,19 +39,14 @@ var echoRequestHandler = function(request) {
 // WebSocket server
 wsServer.on('request', echoRequestHandler);
 
-var spawnFiveMinServer = function() {
-    var fiveMinServer = http.createServer(function(request, response) {
+var spawnServer = function(port) {
+    var server = http.createServer(function(request, response) {
     });
-    fiveMinServer.listen(3001, function() { });
+    server.listen(port, function() { });
 
-    fiveMinWsServer = new WebSocketServer({
-        httpServer: fiveMinServer
+    wsServer = new WebSocketServer({
+        httpServer: server
     });
 
-    fiveMinWsServer.on('request', echoRequestHandler);
-
-    setTimeout(function() {
-        console.log('server process ended, restart the server if needed.');
-        process.exit();
-    }, 300000);
+    wsServer.on('request', echoRequestHandler);
 }

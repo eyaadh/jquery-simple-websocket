@@ -62,13 +62,32 @@ describe('jQuery Deferred Web Socket', function() {
     });
 
 
-    // last test, ends server process
+    it('handles listener errors', function(done) {
+        simpleWebSocket.listen(function(data) {
+            expect(true).toBe(true);
+            console.log(data);
+            throw new Error('listener error');
+        }).fail(function() {
+            console.log('fail');
+            expect(true).toBe(true);
+            done();
+        });
+
+        simpleWebSocket.send({'text': 'hello'}).done(function() {
+            console.log('data send');
+        }).fail(function() {
+            // will only get invoked when sending data fails
+            expect(true).toBe(false);
+        });
+    });
+
+
     it('reconnects', function(done) {
 
         simpleWebSocket.connect().done(function() {
             expect(simpleWebSocket.isConnected()).toBe(true);
 
-            simpleWebSocket.send({'cmd': 'spawnFiveMinServer'}).done(function() {
+            simpleWebSocket.send({'cmd': 'spawnServer'}).done(function() {
                 console.log('reconnect test');
                 simpleWebSocket.close();
 
@@ -99,6 +118,25 @@ describe('jQuery Deferred Web Socket', function() {
             done();
         });
 
+    });
+
+
+    it('closes listeners due to exception', function(done) {
+        console.log('handles errors');
+        simpleWebSocket.listen(function(data) {
+            expect(true).toBe(false);
+            console.log(data);
+        }).done(function() {
+            console.log('connection closed');
+            expect(true).toBe(true);
+            expect(simpleWebSocket.isConnected()).toBe(false);
+            done();
+        });
+
+        simpleWebSocket.send({'cmd': 'throw error'}).done(function() {
+            console.log('data send');
+            expect(true).toBe(true);
+        });
     });
 
 });
