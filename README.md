@@ -1,5 +1,5 @@
 # jQuery Simple WebSocket
-Send and receive JSON objects via a single gracefull websocket and use a fluent deferred interface, queuing messages.
+Send and receive JSON objects via a single gracefull websocket and use a fluent deferred interface, deferring messages.
 
 ## Example
 
