@@ -27,9 +27,9 @@
          var _webSocket = function(opt) {
             var ws;
             if (opt.protocols) {
-                ws = window['MozWebSocket'] ? new MozWebSocket(opt.url, opt.protocols) : window['WebSocket'] ? new WebSocket(opt.url, opt.protocols) : null;
+                ws = (typeof window.MozWebSocket !== 'undefined') ? new MozWebSocket(opt.url, opt.protocols) : window.WebSocket ? new WebSocket(opt.url, opt.protocols) : null;
             } else {
-                ws = window['MozWebSocket'] ? new MozWebSocket(opt.url) : window['WebSocket'] ? new WebSocket(opt.url) : null;
+                ws = (typeof window.MozWebSocket !== 'undefined') ? new MozWebSocket(opt.url) : window.WebSocket ? new WebSocket(opt.url) : null;
             }
 
             if (!ws) {
@@ -108,7 +108,7 @@
 
          var _isConnected = function() {
              return _ws !== null && _ws.readyState === 1;
-         }
+         };
 
          var _reConnect = function() {
              if (!_reConnectDeferred || _reConnectDeferred.state() !== 'pending') {
@@ -133,7 +133,7 @@
              }
 
              return _reConnectDeferred.promise();
-         }
+         };
 
          var _send = function(data) {
              var attempt = jQuery.Deferred();
@@ -168,14 +168,14 @@
                     typeof obj[property] !== 'undefined' &&
                     obj[property] !== null &&
                     obj[property] !== '';
-         }
+         };
 
          var _prop = function(obj, property, defaultValue) {
              if (_isNotEmpty(obj, property)) {
                 return obj[property];
              }
             return defaultValue;
-         }
+         };
 
          var _init = function(opt) {
             if (_isNotEmpty(opt, 'url')) {
@@ -202,7 +202,7 @@
             });
 
             return d.promise();
-         }
+         };
 
          var api = {
 
