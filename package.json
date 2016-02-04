@@ -3,9 +3,18 @@
   "version": "0.0.2",
   "homepage": "http://jbloemendal.github.io/jquery-simple-websocket/",
   "description": "jQuery Simple WebSocket - a fluent, gracefull websocket",
-  "bugs": { "url" : "https://github.com/jbloemendal/jquery-simple-websocket/issues", 
-            "email" : "jannis.bloemendal@gmail.com"
+  "main": "jquery-simple-websocket.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jbloemendal/jquery-simple-websocket"
   },
+  "keywords": [
+    "jquery",
+    "javascript",
+    "browser",
+    "websocket"
+  ],
+  "bugs": { "url" : "https://github.com/jbloemendal/jquery-simple-websocket/issues"},
   "license": "(MIT OR Apache-2.0)",
   "dependencies": {
     "jquery": "1.12.0",
