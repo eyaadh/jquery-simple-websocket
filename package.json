@@ -1,6 +1,7 @@
 {
   "name": "jquery-simple-websocket",
   "version": "0.0.2",
+  "homepage": "http://jbloemendal.github.io/jquery-simple-websocket/",
   "description": "jQuery Simple WebSocket - a fluent, gracefull websocket",
   "bugs": { "url" : "https://github.com/jbloemendal/jquery-simple-websocket/issues", 
             "email" : "jannis.bloemendal@gmail.com"
