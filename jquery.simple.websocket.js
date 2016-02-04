@@ -252,6 +252,7 @@
     $.extend({
         simpleWebSocket: function(opt) {
             SimpleWebSocket.init(opt);
+            SimpleWebSocket.close();
             return SimpleWebSocket;
         }
     });
