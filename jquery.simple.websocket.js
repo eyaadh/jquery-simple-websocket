@@ -16,7 +16,14 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-(function($){
+
+(function (factory) {
+  if (typeof module === "object" && typeof module.exports === "object") {
+      module.exports = factory(require("jquery"));
+  } else {
+      factory(jQuery);
+  }
+}(function($) {
     var SimpleWebSocket = (function() {
          var _opt;
          var _ws;
@@ -52,7 +59,7 @@
          };
 
          var _connect = function() {
-             var attempt = jQuery.Deferred();
+             var attempt = $.Deferred();
              if (_ws) {
                  if (_ws.readyState === 1) {
                      attempt.resolve(_ws);
@@ -113,7 +120,7 @@
          var _reConnect = function() {
              if (!_reConnectDeferred || _reConnectDeferred.state() !== 'pending') {
                  _reConnectTries = _prop(_opt, 'attempts', 60); // default 10min
-                 _reConnectDeferred = jQuery.Deferred();
+                 _reConnectDeferred = $.Deferred();
              }
 
              if (_ws && _ws.readyState === 1) {
@@ -136,7 +143,7 @@
          };
 
          var _send = function(data) {
-             var attempt = jQuery.Deferred();
+             var attempt = $.Deferred();
 
              (function(json, simpleWebSocket) {
                  _reConnect().done(function(_ws) {
@@ -186,7 +193,7 @@
          };
 
          var _listen = function(listener) {
-            var d = jQuery.Deferred();
+            var d = $.Deferred();
 
             _reConnect().done(function() {
                 if (_indexOfListener(listener) !== -1) {
@@ -256,4 +263,4 @@
             return SimpleWebSocket;
         }
     });
-})(jQuery);
+}));
