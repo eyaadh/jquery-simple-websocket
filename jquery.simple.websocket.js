@@ -15,6 +15,10 @@
 * KIND, either express or implied.  See the License for the
 * specific language governing permissions and limitations
 * under the License.
+*
+* jQuery Simple Websocket
+* https://github.com/jbloemendal/jquery-simple-websocket
+* v0.0.4
 */
 
 (function (factory) {
