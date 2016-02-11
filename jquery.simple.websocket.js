@@ -99,6 +99,9 @@
                 },
                 error: function(e) {
                     _ws = window._ws = null;
+                    for (var i=0, len=_listeners.length; i<len; i++) {
+                        _listeners[i].deferred.reject(e);
+                    }
                     if (attempt) {
                         attempt.rejectWith(e);
                     }
