@@ -26,8 +26,9 @@
 }(function($) {
     var SimpleWebSocket = (function() {
          var _opt;
-         var _ws;
-         var _reconnectTries;
+         var _ws = window._ws;
+         console.log('global define reconnect retries');
+         var _reConnectTries = 60;
          var _reConnectDeferred = null;
          var _listeners = [];
 
@@ -55,58 +56,80 @@
                     opt.error.call(this, e);
                 }
             });
+            console.log('_webSocket '+ws);
+            window._ws = ws;
             return ws;
          };
 
          var _connect = function() {
+             console.log('connection attempt');
+
              var attempt = $.Deferred();
+             console.log(_ws);
              if (_ws) {
-                 if (_ws.readyState === 1) {
+                 console.log('previous websocket exists');
+                 if (_ws.readyState === 2 || _ws.readyState === 3) {
+                     // close previous socket
+                     console.log('closing previous socket');
+                     _ws.close();
+                 } else if (_ws.readyState === 0) {
+                     console.log('use previous websocket state 0 connecting');
+                     // attempt.resolve(_ws);
+                     return attempt.promise();
+                 } else if (_ws.readyState === 1) {
+                     console.log('use previous websocket state 1 connected');
                      attempt.resolve(_ws);
                      return attempt.promise();
-                 } else {
-                     // close previous socket
-                     _ws.close();
                  }
              }
 
-            _ws = _webSocket($.extend(_opt, {
+            console.log('opening new websocket');
+            _ws = window._ws = _webSocket($.extend(_opt, {
                 open: function(e) {
+                    console.log('open');
                     var sock = this;
                     if (attempt) {
                         attempt.resolve(sock);
                     }
                 },
                 close: function(e) {
-                    for (var i=0, len=_listeners.length; i<len; i++) {
-                        _listeners[i].deferred.resolve();
-                    }
-
                     if (attempt) {
                         attempt.rejectWith(e);
                     }
                 },
                 message: function(message) {
+                    console.log('message '+_listeners.length);
+
                     for (var i=0, len=_listeners.length; i<len; i++) {
+                        console.log('message notify listener');
                         try {
                             _listeners[i].deferred.notify(message);
                         } catch (error) {
-                            _listeners[i].deferred.reject(error);
                         }
                     }
                 },
                 error: function(e) {
+                    console.log('error');
+                    _ws = window._ws = null;
+//                    for (var i=0, len=_listeners.length; i<len; i++) {
+//                        _listeners[i].deferred.reject();
+//                    }
                     if (attempt) {
+                        console.log('error attempt');
                         attempt.rejectWith(e);
                     }
                 }
             }));
-
-             return attempt.promise();
+            console.log(_ws);
+            return attempt.promise();
          };
 
          var _close = function() {
             if (_ws) {
+                console.log('close socket');
+//                for (var i=0, len=_listeners.length; i<len; i++) {
+//                    _listeners[i].deferred.resolve();
+//                }
                 _ws.close();
                 _ws = null;
                 _reConnectDeferred = null;
@@ -118,7 +141,9 @@
          };
 
          var _reConnect = function() {
+             console.log('reconnect');
              if (!_reConnectDeferred || _reConnectDeferred.state() !== 'pending') {
+                 console.log('reset reconnect tries');
                  _reConnectTries = _prop(_opt, 'attempts', 60); // default 10min
                  _reConnectDeferred = $.Deferred();
              }
@@ -129,7 +154,9 @@
                  _connect().done(function() {
                     _reConnectDeferred.resolve(_ws);
                  }).fail(function(e) {
-                    if (_reConnectTries-- > 0) {
+                    _reConnectTries--;
+                    console.log('reconnect tries '+_reConnectTries);
+                    if (_reConnectTries > 0) {
                        window.setTimeout(function() {
                            _reConnect();
                        }, _prop(_opt, 'timeout', 10000));
@@ -146,10 +173,14 @@
              var attempt = $.Deferred();
 
              (function(json, simpleWebSocket) {
-                 _reConnect().done(function(_ws) {
+                 _reConnect().done(function() {
+                     console.log('send reConnect');
+                     console.log(json);
+                     console.log(_ws);
                      _ws.send(json);
                      attempt.resolve(simpleWebSocket);
                  }).fail(function(e) {
+                     console.log('send reConnect failed');
                      attempt.rejectWith(e);
                  });
              })(JSON.stringify(data), api);
@@ -193,22 +224,39 @@
          };
 
          var _listen = function(listener) {
-            var d = $.Deferred();
+            var dInternal = $.Deferred();
+             _reConnect().done(function() {
+                 console.log('listen connected');
 
-            _reConnect().done(function() {
-                if (_indexOfListener(listener) !== -1) {
-                    d.reject(new Error('Listener already listening.'));
-                } else {
-                    d.progress(function() {
-                        listener.apply(this, arguments);
-                    });
-                    _listeners.push({ 'deferred': d, 'listener': listener });
-                }
-            }).fail(function(e) {
-                d.reject(e);
+                 dInternal.progress(function() {
+                     listener.apply(this, arguments);
+                 });
+                 //_remove(listener);
+                 _listeners.push({ 'deferred': dInternal, 'listener': listener });
+
+                 console.log('_listen listeners '+_listeners.length);
+             }).fail(function(e) {
+                 dInternal.reject(e);
+             });
+             return dInternal.promise();
+         };
+
+         var _listenReconnect = function(listener) {
+            console.log('listen');
+
+            _listen(listener)
+            .fail(function() {
+                console.log('reListen');
+                _listenReconnect(listener);
             });
 
-            return d.promise();
+         };
+
+         var _remove = function(listener) {
+             var index = _indexOfListener(listener);
+             if (index !== -1) {
+                 _listeners.splice(index, 1);
+             }
          };
 
          var api = {
@@ -219,7 +267,7 @@
              },
 
              connect: function() {
-               return $.extend(api, _reConnect());
+                return $.extend(api, _reConnect());
              },
 
              isConnected: function(callback) {
@@ -236,15 +284,16 @@
              },
 
              listen: function(listener) {
-                return $.extend(api, _listen(listener));
+                return $.extend(api, _listenReconnect(listener));
              },
 
              remove: function(listener) {
-                var index = _indexOfListener(listener);
-                if (index !== -1) {
-                    _listeners[i].deferred.resolve();
-                    _listeners.splice(index, 1);
-                }
+                _remove(listener);
+                return api;
+             },
+
+             removeAll: function() {
+                _listeners = [];
                 return api;
              },
 
@@ -259,7 +308,6 @@
     $.extend({
         simpleWebSocket: function(opt) {
             SimpleWebSocket.init(opt);
-            SimpleWebSocket.close();
             return SimpleWebSocket;
         }
     });

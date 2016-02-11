@@ -12,6 +12,7 @@ describe('jQuery Deferred Web Socket', function() {
     });
 
     afterEach(function() {
+        simpleWebSocket.removeAll();
         simpleWebSocket.close();
     });
 
@@ -33,10 +34,7 @@ describe('jQuery Deferred Web Socket', function() {
             simpleWebSocket.listen(function(data) {
                 expect(data.msg).toBe('hello echo1');
                 done();
-            }).fail(function() {
-                expect(true).toBe(false);
-                done();
-            })
+            });
 
             simpleWebSocket.send({'msg': 'hello echo1'});
 
@@ -51,92 +49,62 @@ describe('jQuery Deferred Web Socket', function() {
         simpleWebSocket.listen(function(data) {
             expect(data.msg).toBe('hello echo2');
             done();
-        }).fail(function() {
-            expect(true).toBe(false);
-            done();
         });
 
-        simpleWebSocket.send({'msg': 'hello echo2'}).fail(function() {
-            expect(simpleWebSocket.isConnected()).toBe(true);
-        });
+        simpleWebSocket.send({'msg': 'hello echo2'});
     });
 
 
-    it('handles listener errors', function(done) {
+    it('handles continues reconnecting listeners', function(done) {
         simpleWebSocket.listen(function(data) {
-            expect(true).toBe(true);
+            console.log('listener');
+            expect(data.text).toBe('hello');
             console.log(data);
-            throw new Error('listener error');
-        }).fail(function() {
-            console.log('fail');
-            expect(true).toBe(true);
+            console.log('done');
             done();
         });
 
-        simpleWebSocket.send({'text': 'hello'}).done(function() {
-            console.log('data send');
-        }).fail(function() {
-            // will only get invoked when sending data fails
-            expect(true).toBe(false);
+        simpleWebSocket.connect().done(function() {
+            simpleWebSocket.close();
+
+            simpleWebSocket.send({'text': 'hello'}).done(function() {
+                console.log('data send');
+            }).fail(function() {
+                // will only get invoked when sending data fails
+                expect(true).toBe(false);
+            });
         });
+
     });
 
 
     it('reconnects', function(done) {
 
-        simpleWebSocket.connect().done(function() {
-            expect(simpleWebSocket.isConnected()).toBe(true);
+        simpleWebSocket.send({'cmd': 'spawnServer'}).done(function() {
+            console.log('reconnect test');
+            simpleWebSocket.close();
 
-            simpleWebSocket.send({'cmd': 'spawnServer'}).done(function() {
-                console.log('reconnect test');
-                simpleWebSocket.close();
+            delayedWebSocket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3001/' });
+            delayedWebSocket.connect().done(function() {
+                console.log('reconnected');
 
-                delayedWebSocket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3001/' });
-                delayedWebSocket.connect().done(function() {
-                    console.log('reconnected');
+                delayedWebSocket.listen(function(data) {
+                    expect(data.msg).toBe('hello echo3');
+                    done();
+                });
 
-                    delayedWebSocket.listen(function(data) {
-                        expect(data.msg).toBe('hello echo3');
-                        done();
-                    }).fail(function() {
-                        expect(true).toBe(false);
-                        done();
-                    })
+                delayedWebSocket.send({'msg': 'hello echo3'}).fail(function() {
+                    expect(delayedWebSocket.isConnected()).toBe(true);
+                });
 
-                    delayedWebSocket.send({'msg': 'hello echo3'}).fail(function() {
-                        expect(delayedWebSocket.isConnected()).toBe(true);
-                    });
+            }).fail(function() {
+                console.log('reconnection failed');
+                expect(true).toBe(false);
+            })
 
-                }).fail(function() {
-                    console.log('reconnection failed');
-                    expect(true).toBe(false);
-                })
-
-            });
-        }).fail(function(e) {
-            expect(true).toBe(false);
-            done();
         });
 
-    });
 
-
-    it('closes listeners due to exception', function(done) {
-        console.log('handles errors');
-        simpleWebSocket.listen(function(data) {
-            expect(true).toBe(false);
-            console.log(data);
-        }).done(function() {
-            console.log('connection closed');
-            expect(true).toBe(true);
-            expect(simpleWebSocket.isConnected()).toBe(false);
-            done();
-        });
-
-        simpleWebSocket.send({'cmd': 'throw error'}).done(function() {
-            console.log('data send');
-            expect(true).toBe(true);
-        });
     });
 
 });

@@ -16,14 +16,13 @@
 
         webSocket.listen(function(message) {
             $('#content').prepend(message.text+'\n');
-        }).fail(function(e) {
-            // your error handling e. g.
-            console.log(e);
         });
 
         $('#message').change(function() {
 
-            webSocket.send({ 'text': this.value }).fail(function(e) {
+            webSocket.send({ 'text': this.value }).done(function() {
+                console.log('message send');
+            }).fail(function(e) {
                 // your error handling e. g.
                 console.log(e);
             });
