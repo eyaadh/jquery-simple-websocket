@@ -27,7 +27,6 @@
     var SimpleWebSocket = (function() {
          var _opt;
          var _ws = window._ws;
-         console.log('global define reconnect retries');
          var _reConnectTries = 60;
          var _reConnectDeferred = null;
          var _listeners = [];
@@ -56,37 +55,26 @@
                     opt.error.call(this, e);
                 }
             });
-            console.log('_webSocket '+ws);
             window._ws = ws;
             return ws;
          };
 
          var _connect = function() {
-             console.log('connection attempt');
-
              var attempt = $.Deferred();
-             console.log(_ws);
              if (_ws) {
-                 console.log('previous websocket exists');
                  if (_ws.readyState === 2 || _ws.readyState === 3) {
                      // close previous socket
-                     console.log('closing previous socket');
                      _ws.close();
                  } else if (_ws.readyState === 0) {
-                     console.log('use previous websocket state 0 connecting');
-                     // attempt.resolve(_ws);
                      return attempt.promise();
                  } else if (_ws.readyState === 1) {
-                     console.log('use previous websocket state 1 connected');
                      attempt.resolve(_ws);
                      return attempt.promise();
                  }
              }
 
-            console.log('opening new websocket');
             _ws = window._ws = _webSocket($.extend(_opt, {
                 open: function(e) {
-                    console.log('open');
                     var sock = this;
                     if (attempt) {
                         attempt.resolve(sock);
@@ -98,10 +86,7 @@
                     }
                 },
                 message: function(message) {
-                    console.log('message '+_listeners.length);
-
                     for (var i=0, len=_listeners.length; i<len; i++) {
-                        console.log('message notify listener');
                         try {
                             _listeners[i].deferred.notify(message);
                         } catch (error) {
@@ -109,27 +94,17 @@
                     }
                 },
                 error: function(e) {
-                    console.log('error');
                     _ws = window._ws = null;
-//                    for (var i=0, len=_listeners.length; i<len; i++) {
-//                        _listeners[i].deferred.reject();
-//                    }
                     if (attempt) {
-                        console.log('error attempt');
                         attempt.rejectWith(e);
                     }
                 }
             }));
-            console.log(_ws);
             return attempt.promise();
          };
 
          var _close = function() {
             if (_ws) {
-                console.log('close socket');
-//                for (var i=0, len=_listeners.length; i<len; i++) {
-//                    _listeners[i].deferred.resolve();
-//                }
                 _ws.close();
                 _ws = null;
                 _reConnectDeferred = null;
@@ -141,9 +116,7 @@
          };
 
          var _reConnect = function() {
-             console.log('reconnect');
              if (!_reConnectDeferred || _reConnectDeferred.state() !== 'pending') {
-                 console.log('reset reconnect tries');
                  _reConnectTries = _prop(_opt, 'attempts', 60); // default 10min
                  _reConnectDeferred = $.Deferred();
              }
@@ -155,7 +128,6 @@
                     _reConnectDeferred.resolve(_ws);
                  }).fail(function(e) {
                     _reConnectTries--;
-                    console.log('reconnect tries '+_reConnectTries);
                     if (_reConnectTries > 0) {
                        window.setTimeout(function() {
                            _reConnect();
@@ -174,13 +146,9 @@
 
              (function(json, simpleWebSocket) {
                  _reConnect().done(function() {
-                     console.log('send reConnect');
-                     console.log(json);
-                     console.log(_ws);
                      _ws.send(json);
                      attempt.resolve(simpleWebSocket);
                  }).fail(function(e) {
-                     console.log('send reConnect failed');
                      attempt.rejectWith(e);
                  });
              })(JSON.stringify(data), api);
@@ -226,15 +194,11 @@
          var _listen = function(listener) {
             var dInternal = $.Deferred();
              _reConnect().done(function() {
-                 console.log('listen connected');
-
                  dInternal.progress(function() {
                      listener.apply(this, arguments);
                  });
-                 //_remove(listener);
+                 _remove(listener);
                  _listeners.push({ 'deferred': dInternal, 'listener': listener });
-
-                 console.log('_listen listeners '+_listeners.length);
              }).fail(function(e) {
                  dInternal.reject(e);
              });
@@ -242,11 +206,8 @@
          };
 
          var _listenReconnect = function(listener) {
-            console.log('listen');
-
             _listen(listener)
             .fail(function() {
-                console.log('reListen');
                 _listenReconnect(listener);
             });
 
