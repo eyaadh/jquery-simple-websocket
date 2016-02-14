@@ -12,10 +12,6 @@ Send and receive JSON objects via a single gracefull websocket and use a fluent 
 
     webSocket.listen(function(message) {
         console.log(message.text);
-    }).done(function() {
-        // socket closed or listener removed
-    }).fail(function(e) {
-        // error occurred
     });
 
     webSocket.send({ 'text': 'hello' }).done(function() {
@@ -29,9 +25,9 @@ Send and receive JSON objects via a single gracefull websocket and use a fluent 
 or fluent:
 ```
 var webSocket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3000/' })
-.listen(function(message) { console.log('listener1: '+message.text); }).fail(function(e) { console.log(e); })
-.listen(function(message) { console.log('listener2: '+message.text); }).fail(function(e) { console.log(e); })
-.listen(function(message) { console.log('listener3: '+message.text); }).fail(function(e) { console.log(e); })
+.listen(function(message) { console.log('listener1: '+message.text); })
+.listen(function(message) { console.log('listener2: '+message.text); })
+.listen(function(message) { console.log('listener3: '+message.text); })
 .send({'text': 'hello'});
 ```
 
