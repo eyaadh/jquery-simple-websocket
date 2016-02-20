@@ -18,7 +18,7 @@
 *
 * jQuery Simple Websocket
 * https://github.com/jbloemendal/jquery-simple-websocket
-* v0.0.4
+* 
 */
 
 (function (factory) {
