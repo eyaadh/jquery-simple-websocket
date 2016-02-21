@@ -1,5 +1,5 @@
 # jQuery Simple WebSocket
-Send and receive JSON objects via a single gracefull websocket and use a fluent deferred interface.
+Send and receive JSON objects via gracefull websockets and use a fluent deferred interface.
 
 ## Example
 
@@ -51,17 +51,7 @@ socket.listen(function(data) {});
 socket.remove(listenerCallback);
 
 socket.close();
-```
-Note: if you want to send messages / listen to another socket, close the previous socket e. g.:
-```
-var socket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3001/' });
-socket.send({'data': 'characters'});
 
-socket.close();
-
-socket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3002/' });
-socket.listen(function(message) { console.log(message); });
-```
 
 ### Web Chat Example
 - start nodejs websocket server:

@@ -78,9 +78,53 @@ describe('jQuery Deferred Web Socket', function() {
     });
 
 
+    it('handles multiple sockets', function(done) {
+        var simpleCnt = 0;
+        var anotherCnt = 0;
+
+        simpleWebSocket.send({'cmd': 'spawnServer', 'port': 3010, 'delay': 0}).done(function() {
+            var another = $.simpleWebSocket({ url: 'ws://127.0.0.1:3010/' });
+
+            simpleWebSocket.listen(function(data) {
+                simpleCnt++;
+                expect(data.text).toBe('hello');
+                expect(simpleCnt).toBe(1);
+                expect(anotherCnt).toBe(1);
+                console.log('done');
+                another.close();
+                done();
+            });
+
+            another.listen(function(data) {
+               anotherCnt++;
+               simpleWebSocket.send({'text': 'hello'}).fail(function() {
+                    expect(true).toBe(false);
+               });
+            });
+
+            another.send({'invoke simpleSocket': 'doit'});
+        }).fail(function() {
+            expect(true).toBe(false);
+        });
+
+    });
+
+    it('is fluent', function(done) {
+        simpleWebSocket.listen(function(data) {
+           console.log(data);
+        }).listen(function(data) {
+            expect(data.text).toBe('hello');
+            done();
+        }).send({'text': 'hello'}).done(function() {
+            console.log('data send');
+        }).fail(function() {
+            expect(true).toBe(false);
+        });
+    });
+
     it('reconnects', function(done) {
 
-        simpleWebSocket.send({'cmd': 'spawnServer'}).done(function() {
+        simpleWebSocket.send({'cmd': 'spawnServer', 'port': 3001, 'delay': 15000}).done(function() {
             console.log('reconnect test');
             simpleWebSocket.close();
 
