@@ -18,7 +18,6 @@
 *
 * jQuery Simple Websocket
 * https://github.com/jbloemendal/jquery-simple-websocket
-* 
 */
 
 (function (factory) {
@@ -28,14 +27,68 @@
       factory(jQuery);
   }
 }(function($) {
-    var SimpleWebSocket = (function() {
-         var _opt;
-         var _ws = window._ws;
-         var _reConnectTries = 60;
-         var _reConnectDeferred = null;
-         var _listeners = [];
 
-         var _webSocket = function(opt) {
+    var SimpleWebSocket = function(opt) {
+        this._opt = null;
+
+        if (this._isNotEmpty(opt, 'url')) {
+            this._opt = opt;
+        } else {
+            throw new Error("Missing argument, example usage: $.simpleWebSocket({ url: 'ws://127.0.0.1:3000' }); ");
+        }
+
+        this._ws = null;
+        this._reConnectTries = 60;
+        this._reConnectDeferred = null;
+        this._listeners = [];
+
+        var self = this;
+        this._api = (function() {
+            return {
+                connect: function() {
+                    return $.extend(self._api, self._reConnect.apply(self, []));
+                },
+
+                isConnected: function(callback) {
+                    if (callback) {
+                        callback.apply(this, [self._isConnected.apply(self, [])]);
+                        return self._api;
+                    } else {
+                        return self._isConnected.apply(self, []);
+                    }
+                },
+
+                send: function(data) {
+                    return $.extend(self._api, self._send.apply(self, [data]));
+                },
+
+                listen: function(listener) {
+                    return $.extend(self._api, self._listenReconnect.apply(self, [listener]));
+                },
+
+                remove: function(listener) {
+                    self._remove.apply(self, [listener]);
+                    return self._api;
+                },
+
+                removeAll: function() {
+                    self._listeners = [];
+                    return self._api;
+                },
+
+                close: function() {
+                    self._close.apply(self, []);
+                    return self._api;
+                }
+            };
+        })();
+
+        return this._api;
+    };
+
+    SimpleWebSocket.prototype = {
+
+         _webSocket: function(opt) {
             var ws;
             if (opt.protocols) {
                 ws = (typeof window.MozWebSocket !== 'undefined') ? new MozWebSocket(opt.url, opt.protocols) : window.WebSocket ? new WebSocket(opt.url, opt.protocols) : null;
@@ -59,25 +112,27 @@
                     opt.error.call(this, e);
                 }
             });
-            window._ws = ws;
-            return ws;
-         };
 
-         var _connect = function() {
+            return ws;
+         },
+
+         _connect: function() {
+            var self = this;
+
              var attempt = $.Deferred();
-             if (_ws) {
-                 if (_ws.readyState === 2 || _ws.readyState === 3) {
+             if (this._ws) {
+                 if (this._ws.readyState === 2 || this._ws.readyState === 3) {
                      // close previous socket
-                     _ws.close();
-                 } else if (_ws.readyState === 0) {
+                     this._ws.close();
+                 } else if (this._ws.readyState === 0) {
                      return attempt.promise();
-                 } else if (_ws.readyState === 1) {
-                     attempt.resolve(_ws);
+                 } else if (this._ws.readyState === 1) {
+                     attempt.resolve(this._ws);
                      return attempt.promise();
                  }
              }
 
-            _ws = window._ws = _webSocket($.extend(_opt, {
+            this._ws = this._webSocket($.extend(this._opt, {
                 open: function(e) {
                     var sock = this;
                     if (attempt) {
@@ -90,89 +145,91 @@
                     }
                 },
                 message: function(message) {
-                    for (var i=0, len=_listeners.length; i<len; i++) {
+                    for (var i=0, len=self._listeners.length; i<len; i++) {
                         try {
-                            _listeners[i].deferred.notify(message);
+                            self._listeners[i].deferred.notify.apply(self, [message]);
                         } catch (error) {
                         }
                     }
                 },
                 error: function(e) {
-                    _ws = window._ws = null;
-                    for (var i=0, len=_listeners.length; i<len; i++) {
-                        _listeners[i].deferred.reject(e);
+                    self._ws = null;
+                    for (var i=0, len=self._listeners.length; i<len; i++) {
+                        self._listeners[i].deferred.reject.apply(self, [e]);
                     }
                     if (attempt) {
-                        attempt.rejectWith(e);
+                        attempt.rejectWith.apply(self, [e]);
                     }
                 }
             }));
             return attempt.promise();
-         };
+         },
 
-         var _close = function() {
-            if (_ws) {
-                _ws.close();
-                _ws = null;
-                _reConnectDeferred = null;
+         _close: function() {
+            if (this._ws) {
+                this._ws.close();
+                this._ws = null;
+                this._reConnectDeferred = null;
             }
-         };
+         },
 
-         var _isConnected = function() {
-             return _ws !== null && _ws.readyState === 1;
-         };
+         _isConnected: function() {
+             return this._ws !== null && this._ws.readyState === 1;
+         },
 
-         var _reConnect = function() {
-             if (!_reConnectDeferred || _reConnectDeferred.state() !== 'pending') {
-                 _reConnectTries = _prop(_opt, 'attempts', 60); // default 10min
-                 _reConnectDeferred = $.Deferred();
+         _reConnect: function() {
+             var self = this;
+             if (!this._reConnectDeferred || this._reConnectDeferred.state() !== 'pending') {
+                 this._reConnectTries = this._prop(this._opt, 'attempts', 60); // default 10min
+                 this._reConnectDeferred = $.Deferred();
              }
 
-             if (_ws && _ws.readyState === 1) {
-                 _reConnectDeferred.resolve(_ws);
+             if (this._ws && this._ws.readyState === 1) {
+                 this._reConnectDeferred.resolve(this._ws);
              } else {
-                 _connect().done(function() {
-                    _reConnectDeferred.resolve(_ws);
+                 this._connect().done(function() {
+                    self._reConnectDeferred.resolve.apply(self, [self._ws]);
                  }).fail(function(e) {
-                    _reConnectTries--;
-                    if (_reConnectTries > 0) {
+                    self._reConnectTries--;
+                    if (self._reConnectTries > 0) {
                        window.setTimeout(function() {
-                           _reConnect();
-                       }, _prop(_opt, 'timeout', 10000));
+                           self._reConnect.apply(self, []);
+                       }, self._prop.apply(self, [self._opt, 'timeout', 10000]));
                     } else {
-                       _reConnectDeferred.rejectWith(e);
+                       self._reConnectDeferred.rejectWith.apply(self, [e]);
                     }
                  });
              }
 
-             return _reConnectDeferred.promise();
-         };
+             return self._reConnectDeferred.promise.apply(self, []);
+         },
 
-         var _send = function(data) {
+         _send: function(data) {
+             var self = this;
              var attempt = $.Deferred();
 
-             (function(json, simpleWebSocket) {
-                 _reConnect().done(function() {
-                     _ws.send(json);
-                     attempt.resolve(simpleWebSocket);
+             (function(json) {
+                 self._reConnect.apply(self, []).done(function() {
+                     self._ws.send(json);
+                     attempt.resolve.apply(self, [self._api]);
                  }).fail(function(e) {
-                     attempt.rejectWith(e);
+                     attempt.rejectWith.apply(self, [e]);
                  });
-             })(JSON.stringify(data), api);
+             })(JSON.stringify(data));
 
              return attempt.promise();
-         };
+         },
 
-         var _indexOfListener = function(listener) {
-            for (var i=0, len=_listeners.length; i<len; i++) {
-                if (_listeners[i].listener === listener) {
+         _indexOfListener: function(listener) {
+            for (var i=0, len=this._listeners.length; i<len; i++) {
+                if (this._listeners[i].listener === listener) {
                     return i;
                 }
             }
             return -1;
-         };
+         },
 
-         var _isNotEmpty = function(obj, property) {
+         _isNotEmpty: function(obj, property) {
                 return typeof obj !== 'undefined' &&
                     obj !== null &&
                     typeof property !== 'undefined' &&
@@ -181,102 +238,54 @@
                     typeof obj[property] !== 'undefined' &&
                     obj[property] !== null &&
                     obj[property] !== '';
-         };
+         },
 
-         var _prop = function(obj, property, defaultValue) {
-             if (_isNotEmpty(obj, property)) {
+         _prop: function(obj, property, defaultValue) {
+             if (this._isNotEmpty(obj, property)) {
                 return obj[property];
              }
             return defaultValue;
-         };
+         },
 
-         var _init = function(opt) {
-            if (_isNotEmpty(opt, 'url')) {
-                _opt = opt;
-            } else {
-                throw new Error("Missing argument, example usage: $.simpleWebSocket({ url: 'ws://127.0.0.1:3000' }); ");
-            }
-         };
-
-         var _listen = function(listener) {
+         _listen: function(listener) {
+            var self = this;
             var dInternal = $.Deferred();
-             _reConnect().done(function() {
+             self._reConnect.apply(self, []).done(function() {
                  dInternal.progress(function() {
                      listener.apply(this, arguments);
                  });
-                 _remove(listener);
-                 _listeners.push({ 'deferred': dInternal, 'listener': listener });
+                 self._remove.apply(self, [listener]);
+                 self._listeners.push({ 'deferred': dInternal, 'listener': listener });
              }).fail(function(e) {
                  dInternal.reject(e);
              });
              return dInternal.promise();
-         };
+         },
 
-         var _listenReconnect = function(listener) {
-            _listen(listener)
+         _listenReconnect: function(listener) {
+            var dExternal = $.Deferred();
+
+            var self = this;
+            this._listen(listener)
             .fail(function() {
-                _listenReconnect(listener);
+                dExternal.progress(arguments);
+                self._listenReconnect.apply(self, [listener]);
             });
 
-         };
+            return dExternal.promise();
+         },
 
-         var _remove = function(listener) {
-             var index = _indexOfListener(listener);
+         _remove: function(listener) {
+             var index = this._indexOfListener(listener);
              if (index !== -1) {
                  _listeners.splice(index, 1);
              }
-         };
-
-         var api = {
-
-             init: function(opt) {
-                _init(opt);
-                return api;
-             },
-
-             connect: function() {
-                return $.extend(api, _reConnect());
-             },
-
-             isConnected: function(callback) {
-                if (callback) {
-                    callback.apply(this, [_isConnected()]);
-                    return api;
-                } else {
-                    return _isConnected();
-                }
-             },
-
-             send: function(data) {
-                return $.extend(api, _send(data));
-             },
-
-             listen: function(listener) {
-                return $.extend(api, _listenReconnect(listener));
-             },
-
-             remove: function(listener) {
-                _remove(listener);
-                return api;
-             },
-
-             removeAll: function() {
-                _listeners = [];
-                return api;
-             },
-
-             close: function() {
-                _close();
-                return api;
-             }
-         };
-         return api;
-     })();
+         }
+     };
 
     $.extend({
         simpleWebSocket: function(opt) {
-            SimpleWebSocket.init(opt);
-            return SimpleWebSocket;
+            return new SimpleWebSocket(opt);
         }
     });
 }));
