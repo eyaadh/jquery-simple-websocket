@@ -33,12 +33,9 @@
 &lt;script type="text/javascript"&gt;
     var webSocket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3000/' });
 
+    // reconnected listening
     webSocket.listen(function(message) {
         console.log(message.text);
-    }).done(function() {
-        // socket closed or listener removed
-    }).fail(function(e) {
-        // error occurred
     });
 
     webSocket.send({ 'text': 'hello' }).done(function() {
