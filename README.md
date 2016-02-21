@@ -51,7 +51,7 @@ socket.listen(function(data) {});
 socket.remove(listenerCallback);
 
 socket.close();
-
+```
 
 ### Web Chat Example
 - start nodejs websocket server:
