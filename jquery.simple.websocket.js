@@ -209,8 +209,8 @@
              var attempt = $.Deferred();
 
              (function(json) {
-                 self._reConnect.apply(self, []).done(function() {
-                     self._ws.send(json);
+                 self._reConnect.apply(self, []).done(function(ws) {
+                     ws.send(json);
                      attempt.resolve.apply(self, [self._api]);
                  }).fail(function(e) {
                      attempt.rejectWith.apply(self, [e]);
@@ -221,10 +221,7 @@
          },
 
          _indexOfListener: function(listener) {
-            console.log('_indexOfListener '+this._listeners.length);
             for (var i=0, len=this._listeners.length; i<len; i++) {
-                console.log(this._listeners[i].listener);
-                console.log(listener);
                 if (this._listeners[i].listener === listener) {
                     return i;
                 }
@@ -257,7 +254,6 @@
                  dInternal.progress(function() {
                      listener.apply(this, arguments);
                  });
-                 console.log('push listener');
                  self._remove.apply(self, [listener]);
                  self._listeners.push({ 'deferred': dInternal, 'listener': listener });
              }).fail(function(e) {
@@ -283,9 +279,7 @@
 
          _remove: function(listener) {
              var index = this._indexOfListener(listener);
-             console.log('_remove');
              if (index !== -1) {
-                 console.log('_remove found');
                  this._listeners[index].deferred.resolve();
                  this._listeners.splice(index, 1);
              }

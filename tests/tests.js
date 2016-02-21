@@ -129,7 +129,6 @@ describe('jQuery Deferred Web Socket', function() {
         };
 
         simpleWebSocket.listen(listener).done(function() {
-            console.log('done');
             expect(true).toBe(true);
             done();
         });
@@ -149,7 +148,7 @@ describe('jQuery Deferred Web Socket', function() {
                console.log(data);
                expect(true).toBe(false);
             }).done(function() {
-               console.log('done');
+               console.log('listener done');
                expect(true).toBe(true);
             });
         }
@@ -165,8 +164,8 @@ describe('jQuery Deferred Web Socket', function() {
 
         simpleWebSocket.connect().done(function() {
             simpleWebSocket.removeAll();
-
-            simpleWebSocket.send({'msg': 'hello'});
+            console.log('listeners removed, send messages');
+            simpleWebSocket.send({'msg': 'hello1'});
             simpleWebSocket.send({'msg': 'hello2'});
             simpleWebSocket.send({'msg': 'hello3'});
         });
