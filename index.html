@@ -22,7 +22,7 @@
       <h1>
 <a id="jquery-simple-websocket" class="anchor" href="#jquery-simple-websocket" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>jQuery Simple WebSocket</h1>
 
-<p>Send and receive JSON objects via a single gracefull websocket and use a fluent deferred interface, queuing messages.</p>
+<p>Send and receive JSON objects via  gracefull websockets and use a fluent deferred interface, queuing messages.</p>
 
 <h2>
 <a id="example" class="anchor" href="#example" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Example</h2>
@@ -72,16 +72,6 @@ socket.remove(listenerCallback);
 socket.close();
 </code></pre>
 
-<p>Note: if you want to send messages / listen to another socket, close the previous socket e. g.:</p>
-
-<pre><code>var socket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3001/' });
-socket.send({'data': 'characters'});
-
-socket.close();
-
-socket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3002/' });
-socket.listen(function(message) { console.log(message); });
-</code></pre>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/jbloemendal/jquery-simple-websocket">jquery-simple-websocket</a> is maintained by <a href="https://github.com/jbloemendal">jbloemendal</a>.</span>
