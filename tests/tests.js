@@ -122,6 +122,56 @@ describe('jQuery Deferred Web Socket', function() {
         });
     });
 
+    it('removes listener', function(done) {
+        var listener = function(data) {
+           console.log(data);
+           expect(true).toBe(false);
+        };
+
+        simpleWebSocket.listen(listener).done(function() {
+            console.log('done');
+            expect(true).toBe(true);
+            done();
+        });
+
+        simpleWebSocket.connect().done(function() {
+            simpleWebSocket.remove(listener);
+
+            simpleWebSocket.send({'msg': 'hello'});
+            simpleWebSocket.send({'msg': 'hello2'});
+            simpleWebSocket.send({'msg': 'hello3'});
+        });
+    });
+
+    it('removes all listeners', function(done) {
+        for (var i=0; i<10; i++) {
+            simpleWebSocket.listen(function(data) {
+               console.log(data);
+               expect(true).toBe(false);
+            }).done(function() {
+               console.log('done');
+               expect(true).toBe(true);
+            });
+        }
+
+        simpleWebSocket.listen(function(data) {
+           console.log(data);
+           expect(true).toBe(false);
+        }).done(function() {
+           console.log('done');
+           expect(true).toBe(true);
+           done();
+        });
+
+        simpleWebSocket.connect().done(function() {
+            simpleWebSocket.removeAll();
+
+            simpleWebSocket.send({'msg': 'hello'});
+            simpleWebSocket.send({'msg': 'hello2'});
+            simpleWebSocket.send({'msg': 'hello3'});
+        });
+    });
+
     it('reconnects', function(done) {
 
         simpleWebSocket.send({'cmd': 'spawnServer', 'port': 3001, 'delay': 15000}).done(function() {

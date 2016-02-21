@@ -72,7 +72,7 @@
                 },
 
                 removeAll: function() {
-                    self._listeners = [];
+                    self._removeAll.apply(self, []);
                     return self._api;
                 },
 
@@ -221,7 +221,10 @@
          },
 
          _indexOfListener: function(listener) {
+            console.log('_indexOfListener '+this._listeners.length);
             for (var i=0, len=this._listeners.length; i<len; i++) {
+                console.log(this._listeners[i].listener);
+                console.log(listener);
                 if (this._listeners[i].listener === listener) {
                     return i;
                 }
@@ -254,6 +257,7 @@
                  dInternal.progress(function() {
                      listener.apply(this, arguments);
                  });
+                 console.log('push listener');
                  self._remove.apply(self, [listener]);
                  self._listeners.push({ 'deferred': dInternal, 'listener': listener });
              }).fail(function(e) {
@@ -268,8 +272,10 @@
             var self = this;
             this._listen(listener)
             .fail(function() {
-                dExternal.progress(arguments);
+                dExternal.notify(arguments);
                 self._listenReconnect.apply(self, [listener]);
+            }).done(function() {
+                dExternal.resolve();
             });
 
             return dExternal.promise();
@@ -277,9 +283,19 @@
 
          _remove: function(listener) {
              var index = this._indexOfListener(listener);
+             console.log('_remove');
              if (index !== -1) {
-                 _listeners.splice(index, 1);
+                 console.log('_remove found');
+                 this._listeners[index].deferred.resolve();
+                 this._listeners.splice(index, 1);
              }
+         },
+
+         _removeAll: function() {
+            for (var i=0, len=this._listeners.length; i<len; i++) {
+                this._listeners[i].deferred.resolve();
+            }
+            this._listeners = [];
          }
      };
 

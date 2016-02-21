@@ -50,6 +50,8 @@ socket.listen(function(data) {});
 
 socket.remove(listenerCallback);
 
+socket.removeAll();
+
 socket.close();
 ```
 
