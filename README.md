@@ -9,7 +9,8 @@ Send and receive JSON objects via gracefull websockets and use a fluent deferred
 <script type="text/javascript" src="jquery.simple.websocket.js"></script>
 <script type="text/javascript">
     var webSocket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3000/' });
-
+    
+    // reconnected listening
     webSocket.listen(function(message) {
         console.log(message.text);
     });
