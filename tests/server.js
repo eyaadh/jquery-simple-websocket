@@ -8,19 +8,31 @@ var requestHandler = function(request) {
 
     connection.on('message', function(message) {
         console.log(message);
-        var data = JSON.parse(message.utf8Data);
 
-        if (data.cmd === 'spawnServer') {
-            var delay = Number(data.delay);
+        var type = 'text';
+        var data;
+        try {
+            data = JSON.parse(message.utf8Data);
+            type = 'json';
+        } catch (e) {
+            data = message.utf8Data;
+        }
 
-            console.log('delay server spawn '+delay);
+        if (type === 'json') {
+            if (data.cmd === 'spawnServer') {
+                var delay = Number(data.delay);
 
-            setTimeout(function() {
-                spawnServer(data.port);
-            }, delay);
+                console.log('delay server spawn '+delay);
 
-        } else if (data.cmd === 'throwError') {
-            throw new Error("error");
+                setTimeout(function() {
+                    spawnServer(data.port);
+                }, delay);
+
+            } else if (data.cmd === 'throwError') {
+                throw new Error("error");
+            } else {
+                connection.send(message.utf8Data);
+            }
         } else {
             connection.send(message.utf8Data);
         }

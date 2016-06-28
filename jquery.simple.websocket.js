@@ -103,9 +103,17 @@
             $(ws).bind('open', opt.open)
             .bind('close', opt.close)
             .bind('message', function(e) {
-                var json = $.evalJSON(e.originalEvent.data);
-                if (opt[e.type]) {
-                    opt[e.type].call(this, json);
+                if (opt.dataType === 'xml') {
+                    if (opt[e.type]) {
+                        var domParser = new DOMParser();
+                        var dom = domParser.parseFromString(e.originalEvent.data, "text/xml");
+                        opt[e.type].call(this, dom);
+                    }
+                } else {
+                    var json = $.evalJSON(e.originalEvent.data);
+                    if (opt[e.type]) {
+                        opt[e.type].call(this, json);
+                    }
                 }
             }).bind('error', function(e) {
                 if (opt.error) {
@@ -208,14 +216,21 @@
              var self = this;
              var attempt = $.Deferred();
 
+             var payload;
+             if (this._opt.dataType === 'xml') {
+                 payload = data;
+             } else {
+                 payload = JSON.stringify(data);
+             }
+
              (function(json) {
-                 self._reConnect.apply(self, []).done(function(ws) {
-                     ws.send(json);
-                     attempt.resolve.apply(self, [self._api]);
-                 }).fail(function(e) {
-                     attempt.rejectWith.apply(self, [e]);
-                 });
-             })(JSON.stringify(data));
+                  self._reConnect.apply(self, []).done(function(ws) {
+                      ws.send(json);
+                      attempt.resolve.apply(self, [self._api]);
+                  }).fail(function(e) {
+                      attempt.rejectWith.apply(self, [e]);
+                  });
+              })(payload);
 
              return attempt.promise();
          },
