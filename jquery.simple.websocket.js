@@ -108,15 +108,13 @@
             .bind('close', opt.close)
             .bind('message', function(event) {
                 try {
-                    if (self._dataType) {
-                        if (self._dataType.toLowerCase() === 'json') {
-                            var json = $.evalJSON(event.originalEvent.data);
-                            opt[event.type].call(this, json);
-                        } else if (self._dataType.toLowerCase() === 'xml') {
-                            var domParser = new DOMParser();
-                            var dom = domParser.parseFromString(event.originalEvent.data, "text/xml");
-                            opt[event.type].call(this, dom);
-                        }
+                    if (self._dataType && self._dataType.toLowerCase() === 'json') {
+                        var json = $.evalJSON(event.originalEvent.data);
+                        opt[event.type].call(this, json);
+                    } else if (self._dataType && self._dataType.toLowerCase() === 'xml') {
+                        var domParser = new DOMParser();
+                        var dom = domParser.parseFromString(event.originalEvent.data, "text/xml");
+                        opt[event.type].call(this, dom);
                     } else if (opt[event.type]) {
                         opt[event.type].call(this, event.originalEvent.data);
                     }
@@ -227,10 +225,14 @@
              var attempt = $.Deferred();
 
              var payload;
-             if (this._opt.dataType === 'xml') {
+             if (this._opt.dataType && this._opt.dataType.toLowerCase() === 'text') {
                  payload = data;
-             } else {
+             } else if (this._opt.dataType && this._opt.dataType.toLowerCase() === 'xml') {
+                 payload = data;
+             } else if (this._opt.dataType && this._opt.dataType.toLowerCase() === 'json') {
                  payload = JSON.stringify(data);
+             } else {
+                 payload = JSON.stringify(data); // default
              }
 
              (function(json) {

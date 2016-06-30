@@ -76,6 +76,31 @@ describe('jQuery Deferred Web Socket', function() {
     });
 
 
+    it('sends text data and receives echo text data.', function(done) {
+        var simpleXmlWebSocket = $.simpleWebSocket({
+            url: 'ws://127.0.0.1:3000/',
+            attempts: 60, // default values
+            timeout: 10000,
+            dataType: 'text'
+        });
+
+        simpleXmlWebSocket.connect().done(function() {
+            expect(simpleXmlWebSocket.isConnected()).toBe(true);
+
+            simpleXmlWebSocket.listen(function(data) {
+                expect(data).toBe('text: hello');
+                done();
+            });
+
+            simpleXmlWebSocket.send('text: hello');
+        }).fail(function(e) {
+            expect(true).toBe(false);
+            done();
+        });
+
+    });
+
+
     it('connects automatically, receiving echo msg', function(done) {
         simpleWebSocket.listen(function(data) {
             expect(data.msg).toBe('hello echo2');
