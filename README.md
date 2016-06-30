@@ -39,7 +39,7 @@ var socket = $.simpleWebSocket({
                                  protocols: 'your_protocol', // optional
                                  timeout: 20000, // optional, default timeout between connection attempts
                                  attempts: 60, // optional, default attempts until closing connection
-                                 dataType: 'json' // optional, default json
+                                 dataType: 'json' // optional (xml, json, text), default json
                                });
 
 socket.connect();
