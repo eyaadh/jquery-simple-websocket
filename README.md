@@ -38,7 +38,8 @@ var socket = $.simpleWebSocket({
                                  url: 'ws://127.0.0.1:3000/',
                                  protocols: 'your_protocol', // optional
                                  timeout: 20000, // optional, default timeout between connection attempts
-                                 attempts: 60 // optional, default attempts until closing connection
+                                 attempts: 60, // optional, default attempts until closing connection
+                                 dataType: 'json' // optional, default json
                                });
 
 socket.connect();
