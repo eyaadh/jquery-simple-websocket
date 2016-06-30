@@ -106,18 +106,24 @@
 
             $(ws).bind('open', opt.open)
             .bind('close', opt.close)
-            .bind('message', function(e) {
-                if (self._dataType) {
-                    if (self._dataType.toLowerCase() === 'json') {
-                        var json = $.evalJSON(e.originalEvent.data);
-                        opt[e.type].call(this, json);
-                    } else if (self._dataType.toLowerCase() === 'xml') {
-                        var domParser = new DOMParser();
-                        var dom = domParser.parseFromString(e.originalEvent.data, "text/xml");
-                        opt[e.type].call(this, dom);
+            .bind('message', function(event) {
+                try {
+                    if (self._dataType) {
+                        if (self._dataType.toLowerCase() === 'json') {
+                            var json = $.evalJSON(event.originalEvent.data);
+                            opt[event.type].call(this, json);
+                        } else if (self._dataType.toLowerCase() === 'xml') {
+                            var domParser = new DOMParser();
+                            var dom = domParser.parseFromString(event.originalEvent.data, "text/xml");
+                            opt[event.type].call(this, dom);
+                        }
+                    } else if (opt[event.type]) {
+                        opt[event.type].call(this, event.originalEvent.data);
                     }
-                } else if (opt[e.type]) {
-                    opt[e.type].call(this, e.originalEvent.data);
+                } catch (exception) {
+                    if (opt[event.type]) {
+                        opt[event.type].call(this, event.originalEvent.data);
+                    }
                 }
             }).bind('error', function(e) {
                 if (opt.error) {

@@ -45,24 +45,29 @@ describe('jQuery Deferred Web Socket', function() {
     });
 
 
-    it('receives echo xml msg from server', function(done) {
+    it('sends json and receives xml msg from server.', function(done) {
         var simpleXmlWebSocket = $.simpleWebSocket({
             url: 'ws://127.0.0.1:3000/',
             attempts: 60, // default values
             timeout: 10000,
-            dataType: 'xml'
+            dataType: 'json'
         });
 
         simpleXmlWebSocket.connect().done(function() {
             expect(simpleXmlWebSocket.isConnected()).toBe(true);
 
-            simpleXmlWebSocket.listen(function(xmlDocument) {
-                expect(xmlDocument.firstChild.tagName).toBe('msg');
-                expect(xmlDocument.firstChild.textContent).toBe('hello');
+            simpleXmlWebSocket.listen(function(data) {
+                try {
+                    var domParser = new DOMParser();
+                    var dom = domParser.parseFromString(data, "text/xml");
+                    expect(true).toBe(true);
+                } catch (e) {
+                    expect(true).toBe(false);
+                }
                 done();
             });
 
-            simpleXmlWebSocket.send('<msg>hello</msg>');
+            simpleXmlWebSocket.send({'cmd': 'xmlResponse', 'text': 'hello'});
         }).fail(function(e) {
             expect(true).toBe(false);
             done();

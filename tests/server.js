@@ -27,7 +27,8 @@ var requestHandler = function(request) {
                 setTimeout(function() {
                     spawnServer(data.port);
                 }, delay);
-
+            } else if (data.cmd === 'xmlResponse') {
+                connection.send('<msg>hello</msg>');
             } else if (data.cmd === 'throwError') {
                 throw new Error("error");
             } else {
