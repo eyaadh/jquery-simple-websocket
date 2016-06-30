@@ -40,6 +40,8 @@
         this._ws = null;
         this._reConnectTries = 60;
         this._reConnectDeferred = null;
+        this._dataType = this._prop(this._opt, 'dataType', 'json');
+
         this._listeners = [];
 
         var self = this;
@@ -100,20 +102,22 @@
                 throw new Error('Error, websocket could not be initialized.');
             }
 
+            var self = this;
+
             $(ws).bind('open', opt.open)
             .bind('close', opt.close)
             .bind('message', function(e) {
-                if (opt.dataType === 'xml') {
-                    if (opt[e.type]) {
+                if (self._dataType) {
+                    if (self._dataType.toLowerCase() === 'json') {
+                        var json = $.evalJSON(e.originalEvent.data);
+                        opt[e.type].call(this, json);
+                    } else if (self._dataType.toLowerCase() === 'xml') {
                         var domParser = new DOMParser();
                         var dom = domParser.parseFromString(e.originalEvent.data, "text/xml");
                         opt[e.type].call(this, dom);
                     }
-                } else {
-                    var json = $.evalJSON(e.originalEvent.data);
-                    if (opt[e.type]) {
-                        opt[e.type].call(this, json);
-                    }
+                } else if (opt[e.type]) {
+                    opt[e.type].call(this, e.originalEvent.data);
                 }
             }).bind('error', function(e) {
                 if (opt.error) {
