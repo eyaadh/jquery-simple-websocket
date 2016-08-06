@@ -21,7 +21,7 @@ describe('jQuery Deferred Web Socket', function() {
             expect(simpleWebSocket.isConnected()).toBe(true);
             done();
         }).fail(function(e) {
-            expect(true).toBe(false);
+            expect(true).toBe(false); // test failure
             done();
         });
     });
@@ -39,7 +39,7 @@ describe('jQuery Deferred Web Socket', function() {
             simpleWebSocket.send({'msg': 'hello echo1'});
 
         }).fail(function(e) {
-            expect(true).toBe(false);
+            expect(true).toBe(false); // test failure
             done();
         });
     });
@@ -62,14 +62,14 @@ describe('jQuery Deferred Web Socket', function() {
                     var dom = domParser.parseFromString(data, "text/xml");
                     expect(true).toBe(true);
                 } catch (e) {
-                    expect(true).toBe(false);
+                    expect(true).toBe(false); // test failure
                 }
                 done();
             });
 
             simpleXmlWebSocket.send({'cmd': 'xmlResponse', 'text': 'hello'});
         }).fail(function(e) {
-            expect(true).toBe(false);
+            expect(true).toBe(false); // test failure
             done();
         });
 
@@ -94,7 +94,7 @@ describe('jQuery Deferred Web Socket', function() {
 
             simpleXmlWebSocket.send('text: hello');
         }).fail(function(e) {
-            expect(true).toBe(false);
+            expect(true).toBe(false); // test failure
             done();
         });
 
@@ -127,7 +127,7 @@ describe('jQuery Deferred Web Socket', function() {
                 console.log('data send');
             }).fail(function() {
                 // will only get invoked when sending data fails
-                expect(true).toBe(false);
+                expect(true).toBe(false); // test failure
             });
         });
 
@@ -154,13 +154,13 @@ describe('jQuery Deferred Web Socket', function() {
             another.listen(function(data) {
                anotherCnt++;
                simpleWebSocket.send({'text': 'hello'}).fail(function() {
-                    expect(true).toBe(false);
+                    expect(true).toBe(false); // test failure
                });
             });
 
             another.send({'invoke simpleSocket': 'doit'});
         }).fail(function() {
-            expect(true).toBe(false);
+            expect(true).toBe(false); // test failure
         });
 
     });
@@ -174,14 +174,14 @@ describe('jQuery Deferred Web Socket', function() {
         }).send({'text': 'hello'}).done(function() {
             console.log('data send');
         }).fail(function() {
-            expect(true).toBe(false);
+            expect(true).toBe(false); // test failure
         });
     });
 
     it('removes listener', function(done) {
         var listener = function(data) {
            console.log(data);
-           expect(true).toBe(false);
+           expect(true).toBe(false); // test failure
         };
 
         simpleWebSocket.listen(listener).done(function() {
@@ -202,7 +202,7 @@ describe('jQuery Deferred Web Socket', function() {
         for (var i=0; i<10; i++) {
             simpleWebSocket.listen(function(data) {
                console.log(data);
-               expect(true).toBe(false);
+               expect(true).toBe(false); // test failure
             }).done(function() {
                console.log('listener done');
                expect(true).toBe(true);
@@ -211,7 +211,7 @@ describe('jQuery Deferred Web Socket', function() {
 
         simpleWebSocket.listen(function(data) {
            console.log(data);
-           expect(true).toBe(false);
+           expect(true).toBe(false); // test failure
         }).done(function() {
            console.log('done');
            expect(true).toBe(true);
@@ -235,7 +235,7 @@ describe('jQuery Deferred Web Socket', function() {
 
             delayedWebSocket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3001/' });
             delayedWebSocket.connect().done(function() {
-                console.log('reconnected');
+                console.log('gracefull connect');
 
                 delayedWebSocket.listen(function(data) {
                     expect(data.msg).toBe('hello echo3');
@@ -243,12 +243,13 @@ describe('jQuery Deferred Web Socket', function() {
                 });
 
                 delayedWebSocket.send({'msg': 'hello echo3'}).fail(function() {
-                    expect(delayedWebSocket.isConnected()).toBe(true);
+                    console.log('sending message failed');
+                    expect(true).toBe(false); // test failure
                 });
 
             }).fail(function() {
                 console.log('reconnection failed');
-                expect(true).toBe(false);
+                expect(true).toBe(false); // test failure
             })
 
         });
