@@ -1,5 +1,5 @@
 # jQuery Simple WebSocket
-Send and receive JSON objects via gracefull websockets and use a fluent deferred interface.
+Send and receive data through a fluent deferred interface, handling connections gracefully.
 
 ## Example
 
@@ -23,7 +23,7 @@ Send and receive JSON objects via gracefull websockets and use a fluent deferred
 </script>
 ```
 
-or fluent:
+fluent:
 ```
 var webSocket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3000/' })
 .listen(function(message) { console.log('listener1: '+message.text); })
