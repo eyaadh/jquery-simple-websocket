@@ -14,8 +14,8 @@
       <h1 class="project-name">jQuery Simple WebSocket</h1>
       <h2 class="project-tagline">a fluent, gracefull websocket</h2>
       <a href="https://github.com/jbloemendal/jquery-simple-websocket" class="btn">View on GitHub</a>
-      <a href="https://github.com/jbloemendal/jquery-simple-websocket/archive/jquery-simple-websocket-0.0.8.zip" class="btn">Download v0.0.8 .zip</a>
-      <a href="https://github.com/jbloemendal/jquery-simple-websocket/archive/jquery-simple-websocket-0.0.8.tar.gz" class="btn">Download v0.0.8 .tar.gz</a>
+      <a href="https://github.com/jbloemendal/jquery-simple-websocket/archive/jquery-simple-websocket-1.0.0.zip" class="btn">Download v1.0.0 .zip</a>
+      <a href="https://github.com/jbloemendal/jquery-simple-websocket/archive/jquery-simple-websocket-1.0.0.tar.gz" class="btn">Download v1.0.0 .tar.gz</a>
     </section>
     <section class="main-content">
 
@@ -49,12 +49,15 @@
 <h1>
 <a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h1>
 
-<pre><code>var socket = $.simpleWebSocket({
-    url: 'ws://127.0.0.1:3000/',
-    protocols: 'your_protocol', // optional
-    timeout: 20000, // optional, default timeout between connection attempts
-    attempts: 60 // optional, default attempts until closing connection
-});
+<pre>
+<code>
+var socket = $.simpleWebSocket({
+                                 url: 'ws://127.0.0.1:3000/',
+                                 protocols: 'your_protocol', // optional
+                                 timeout: 20000, // optional, default timeout between connection attempts
+                                 attempts: 60, // optional, default attempts until closing connection
+                                 dataType: 'json' // optional (xml, json, text), default json
+                               });
 
 socket.connect();
 
@@ -69,7 +72,8 @@ socket.remove(listenerCallback);
 socket.removeAll();
 
 socket.close();
-</code></pre>
+</code>
+</pre>
 
 
       <footer class="site-footer">
