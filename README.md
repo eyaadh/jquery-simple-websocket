@@ -1,4 +1,7 @@
+![jQuery Simple WebSocket](https://raw.githubusercontent.com/jbloemendal/jquery-simple-websocket/master/websocket.png)
+
 # jQuery Simple WebSocket
+
 Send and receive data through a fluent deferred interface, handling connections gracefully.
 
 ## Example
