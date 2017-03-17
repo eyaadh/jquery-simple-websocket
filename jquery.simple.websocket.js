@@ -90,7 +90,7 @@
 
     SimpleWebSocket.prototype = {
 
-         _webSocket: function(opt) {
+        _createWebSocket: function(opt) {
             var ws;
             if (opt.protocols) {
                 ws = (typeof window.MozWebSocket !== 'undefined') ? new MozWebSocket(opt.url, opt.protocols) : window.WebSocket ? new WebSocket(opt.url, opt.protocols) : null;
@@ -100,16 +100,18 @@
 
             if (!ws) {
                 throw new Error('Error, websocket could not be initialized.');
-            }
-
+            }  
+            return ws;
+        },
+        
+        _bindSocketEvents: function(ws, opt) {
             var self = this;
-
             $(ws).bind('open', opt.open)
             .bind('close', opt.close)
             .bind('message', function(event) {
                 try {
                     if (self._dataType && self._dataType.toLowerCase() === 'json') {
-                        var json = $.evalJSON(event.originalEvent.data);
+                        var json = JSON.parse(event.originalEvent.data);
                         opt[event.type].call(this, json);
                     } else if (self._dataType && self._dataType.toLowerCase() === 'xml') {
                         var domParser = new DOMParser();
@@ -127,28 +129,19 @@
                 if (opt.error) {
                     opt.error.call(this, e);
                 }
-            });
+            });  
+        },
 
-            return ws;
-         },
+        _webSocket: function(opt) {
+           var ws = this._createWebSocket(opt);
+           this._bindSocketEvents(ws, opt);
 
-         _connect: function() {
+           return ws;
+        },
+
+        _getSocketEventHandler: function(attempt) {
             var self = this;
-
-             var attempt = $.Deferred();
-             if (this._ws) {
-                 if (this._ws.readyState === 2 || this._ws.readyState === 3) {
-                     // close previous socket
-                     this._ws.close();
-                 } else if (this._ws.readyState === 0) {
-                     return attempt.promise();
-                 } else if (this._ws.readyState === 1) {
-                     attempt.resolve(this._ws);
-                     return attempt.promise();
-                 }
-             }
-
-            this._ws = this._webSocket($.extend(this._opt, {
+            return {
                 open: function(e) {
                     var sock = this;
                     if (attempt) {
@@ -177,104 +170,131 @@
                         attempt.rejectWith.apply(self, [e]);
                     }
                 }
-            }));
-            return attempt.promise();
-         },
+            };  
+        },
 
-         _close: function() {
+        _connect: function() {
+            var attempt = $.Deferred();
+            
+            if (this._ws) {
+                if (this._ws.readyState === 2 || this._ws.readyState === 3) {
+                    // close previous socket
+                    this._ws.close();
+                } else if (this._ws.readyState === 0) {
+                    return attempt.promise();
+                } else if (this._ws.readyState === 1) {
+                    attempt.resolve(this._ws);
+                    return attempt.promise();
+                }
+            }
+            
+            this._ws = this._webSocket($.extend(this._opt, this._getSocketEventHandler(attempt)));
+            
+            return attempt.promise();
+        },
+
+        _close: function() {
             if (this._ws) {
                 this._ws.close();
                 this._ws = null;
                 this._reConnectDeferred = null;
             }
-         },
+        },
 
-         _isConnected: function() {
-             return this._ws !== null && this._ws.readyState === 1;
-         },
+        _isConnected: function() {
+            return this._ws !== null && this._ws.readyState === 1;
+        },
 
-         _reConnect: function() {
-             var self = this;
-             if (!this._reConnectDeferred || this._reConnectDeferred.state() !== 'pending') {
-                 this._reConnectTries = this._prop(this._opt, 'attempts', 60); // default 10min
-                 this._reConnectDeferred = $.Deferred();
-             }
+        _reConnectTry: function() {
+            var self = this;
+            this._connect().done(function() {
+                self._reConnectDeferred.resolve.apply(self, [self._ws]);
+            }).fail(function(e) {
+                self._reConnectTries--;
+                if (self._reConnectTries > 0) {
+                    window.setTimeout(function() {
+                        self._reConnect.apply(self, []);
+                    }, self._prop.apply(self, [self._opt, 'timeout', 10000]));
+                } else {
+                    self._reConnectDeferred.rejectWith.apply(self, [e]);
+                }
+            });
+        },
 
-             if (this._ws && this._ws.readyState === 1) {
-                 this._reConnectDeferred.resolve(this._ws);
-             } else {
-                 this._connect().done(function() {
-                    self._reConnectDeferred.resolve.apply(self, [self._ws]);
-                 }).fail(function(e) {
-                    self._reConnectTries--;
-                    if (self._reConnectTries > 0) {
-                       window.setTimeout(function() {
-                           self._reConnect.apply(self, []);
-                       }, self._prop.apply(self, [self._opt, 'timeout', 10000]));
-                    } else {
-                       self._reConnectDeferred.rejectWith.apply(self, [e]);
-                    }
-                 });
-             }
+        _reConnect: function() {
+            var self = this;
+            if (!this._reConnectDeferred || this._reConnectDeferred.state() !== 'pending') {
+                this._reConnectTries = this._prop(this._opt, 'attempts', 60); // default 10min
+                this._reConnectDeferred = $.Deferred();
+            }
 
-             return self._reConnectDeferred.promise.apply(self, []);
-         },
+            if (this._ws && this._ws.readyState === 1) {
+                this._reConnectDeferred.resolve(this._ws);
+            } else {
+                this._reConnectTry();
+            }
 
-         _send: function(data) {
-             var self = this;
-             var attempt = $.Deferred();
+            return self._reConnectDeferred.promise.apply(self, []);
+        },
 
-             var payload;
-             if (this._opt.dataType && this._opt.dataType.toLowerCase() === 'text') {
-                 payload = data;
-             } else if (this._opt.dataType && this._opt.dataType.toLowerCase() === 'xml') {
-                 payload = data;
-             } else if (this._opt.dataType && this._opt.dataType.toLowerCase() === 'json') {
-                 payload = JSON.stringify(data);
-             } else {
-                 payload = JSON.stringify(data); // default
-             }
+        _preparePayload: function(data) {
+            var payload;
+            if (this._opt.dataType && this._opt.dataType.toLowerCase() === 'text') {
+                payload = data;
+            } else if (this._opt.dataType && this._opt.dataType.toLowerCase() === 'xml') {
+                payload = data;
+            } else if (this._opt.dataType && this._opt.dataType.toLowerCase() === 'json') {
+                payload = JSON.stringify(data);
+            } else {
+                payload = JSON.stringify(data); // default
+            }
+            return payload;
+        },
 
-             (function(json) {
-                  self._reConnect.apply(self, []).done(function(ws) {
-                      ws.send(json);
-                      attempt.resolve.apply(self, [self._api]);
-                  }).fail(function(e) {
-                      attempt.rejectWith.apply(self, [e]);
-                  });
-              })(payload);
+        _send: function(data) {
+            var self = this;
+            var attempt = $.Deferred();
 
-             return attempt.promise();
-         },
+            (function(json) {
+                self._reConnect.apply(self, []).done(function(ws) {
+                    ws.send(json);
+                    attempt.resolve.apply(self, [self._api]);
+                }).fail(function(e) {
+                    attempt.rejectWith.apply(self, [e]);
+                });
+            })(this._preparePayload(data));
 
-         _indexOfListener: function(listener) {
+            return attempt.promise();
+        },
+
+        _indexOfListener: function(listener) {
             for (var i=0, len=this._listeners.length; i<len; i++) {
                 if (this._listeners[i].listener === listener) {
                     return i;
                 }
             }
             return -1;
-         },
+        },
 
          _isNotEmpty: function(obj, property) {
-                return typeof obj !== 'undefined' &&
-                    obj !== null &&
-                    typeof property !== 'undefined' &&
-                    property !== null &&
-                    property !== '' &&
-                    typeof obj[property] !== 'undefined' &&
-                    obj[property] !== null &&
-                    obj[property] !== '';
+            return typeof obj !== 'undefined' &&
+                obj !== null &&
+                typeof property !== 'undefined' &&
+                property !== null &&
+                property !== '' &&
+                typeof obj[property] !== 'undefined' &&
+                obj[property] !== null &&
+                obj[property] !== '';
          },
 
-         _prop: function(obj, property, defaultValue) {
-             if (this._isNotEmpty(obj, property)) {
-                return obj[property];
-             }
+        _prop: function(obj, property, defaultValue) {
+            if (this._isNotEmpty(obj, property)) {
+               return obj[property];
+            }
             return defaultValue;
-         },
+        },
 
-         _listen: function(listener) {
+        _listen: function(listener) {
             var self = this;
             var dInternal = $.Deferred();
              self._reConnect.apply(self, []).done(function() {
@@ -287,9 +307,9 @@
                  dInternal.reject(e);
              });
              return dInternal.promise();
-         },
+        },
 
-         _listenReconnect: function(listener) {
+        _listenReconnect: function(listener) {
             var dExternal = $.Deferred();
 
             var self = this;
@@ -302,22 +322,22 @@
             });
 
             return dExternal.promise();
-         },
+        },
 
-         _remove: function(listener) {
-             var index = this._indexOfListener(listener);
-             if (index !== -1) {
-                 this._listeners[index].deferred.resolve();
-                 this._listeners.splice(index, 1);
-             }
-         },
-
-         _removeAll: function() {
-            for (var i=0, len=this._listeners.length; i<len; i++) {
-                this._listeners[i].deferred.resolve();
+        _remove: function(listener) {
+            var index = this._indexOfListener(listener);
+            if (index !== -1) {
+                this._listeners[index].deferred.resolve();
+                this._listeners.splice(index, 1);
             }
-            this._listeners = [];
-         }
+        },
+
+        _removeAll: function() {
+           for (var i=0, len=this._listeners.length; i<len; i++) {
+               this._listeners[i].deferred.resolve();
+           }
+           this._listeners = [];
+        }
      };
 
     $.extend({

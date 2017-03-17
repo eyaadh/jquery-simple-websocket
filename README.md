@@ -4,8 +4,7 @@ Send and receive data through a fluent deferred interface, handling connections 
 ## Example
 
 ```
-<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-json/2.5.1/jquery.json.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.0.min.js"></script>
 <script type="text/javascript" src="jquery.simple.websocket.js"></script>
 <script type="text/javascript">
     var webSocket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3000/' });
@@ -34,13 +33,15 @@ var webSocket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3000/' })
 
 # Usage
 ```
-var socket = $.simpleWebSocket({
-                                 url: 'ws://127.0.0.1:3000/',
-                                 protocols: 'your_protocol', // optional
-                                 timeout: 20000, // optional, default timeout between connection attempts
-                                 attempts: 60, // optional, default attempts until closing connection
-                                 dataType: 'json' // optional (xml, json, text), default json
-                               });
+var socket = $.simpleWebSocket(
+    {
+        url: 'ws://127.0.0.1:3000/',
+        protocols: 'your_protocol', // optional
+        timeout: 20000, // optional, default timeout between connection attempts
+        attempts: 60, // optional, default attempts until closing connection
+        dataType: 'json' // optional (xml, json, text), default json
+    }
+);
 
 socket.connect();
 
