@@ -1,3 +1,4 @@
+[![npm version](https://badge.fury.io/js/jquery-simple-websocket.svg)](https://badge.fury.io/js/jquery-simple-websocket)
 ![jQuery Simple WebSocket](https://raw.githubusercontent.com/jbloemendal/jquery-simple-websocket/master/websocket.png)
 
 # jQuery Simple WebSocket
