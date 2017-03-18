@@ -1,4 +1,5 @@
 [![npm version](https://badge.fury.io/js/jquery-simple-websocket.svg)](https://badge.fury.io/js/jquery-simple-websocket)
+[![blogger article](https://raw.githubusercontent.com/jbloemendal/jquery-simple-websocket/master/blogger.png)](http://blog.jbloemendal.com/2017/03/jquery-simple-websocket.html)
 
 ![jQuery Simple WebSocket](https://raw.githubusercontent.com/jbloemendal/jquery-simple-websocket/master/websocket.png)
 
