@@ -64,9 +64,9 @@ socket.close();
 ### Web Chat Example
 - start nodejs websocket server:
 ```
-$ node tests/server.js
+$ node src/server.js
 ```
-- open tests/example.html
+- open example/example.html
 
 # History
 - jQuery Simple Web Socket has been forked from https://github.com/dchelimsky/jquery-websocket

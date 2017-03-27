@@ -1,6 +1,6 @@
 {
   "name": "jquery-simple-websocket",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "homepage": "http://jbloemendal.github.io/jquery-simple-websocket/",
   "description": "jQuery Simple WebSocket - a fluent, gracefull websocket",
   "main": "./jquery.simple.websocket.js",
@@ -15,9 +15,18 @@
     "browser",
     "websocket"
   ],
-  "bugs": { "url" : "https://github.com/jbloemendal/jquery-simple-websocket/issues"},
+  "bugs": {
+    "url": "https://github.com/jbloemendal/jquery-simple-websocket/issues"
+  },
   "license": "(MIT OR Apache-2.0)",
   "dependencies": {
+    "grunt-contrib-uglify": "2.2.0",
     "jquery": "3.2.0"
+  },
+  "devDependencies": {
+    "grunt-contrib-jasmine": "^1.1.0",
+    "grunt-contrib-uglify": "^2.2.0",
+    "http": "3.24.10",
+    "websocket": "^1.1.2"
   }
 }
