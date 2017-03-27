@@ -55,15 +55,10 @@ grunt.registerTask('server', function (target) {
     });
     nodemon.stdout.pipe(process.stdout);
     nodemon.stderr.pipe(process.stderr);
-
-    // here you can run other tasks e.g. 
-    // grunt.task.run([ 'watch' ]);
 });
 
-// Next one would load plugins
 grunt.loadNpmTasks('grunt-contrib-uglify');
 grunt.loadNpmTasks('grunt-nodemon');
-
 grunt.loadNpmTasks('grunt-contrib-jasmine');
 grunt.loadNpmTasks('grunt-contrib-jshint');
 grunt.loadNpmTasks('grunt-contrib-watch');
