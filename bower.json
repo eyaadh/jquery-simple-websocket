@@ -1,6 +1,6 @@
 {
   "name": "jquery-simple-websocket",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "title": "jQuery Simple WebSocket",
   "description": "jQuery Simple WebSocket - a fluent, gracefull websocket",
   "keywords": [
@@ -30,7 +30,7 @@
     "jquery": "3.2.0"
   },
   "main": [
-    "./jquery.simple.websocket.js"
+    "./src/jquery.simple.websocket.js"
   ],
   "ignore": [
     ".DS_Store",
