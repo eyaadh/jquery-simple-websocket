@@ -22,7 +22,7 @@
 
 (function (factory) {
   if (typeof module === "object" && typeof module.exports === "object") {
-      module.exports = factory(require("jquery"));
+      module.exports = factory(jQuery);
   } else {
       factory(jQuery);
   }
@@ -345,4 +345,6 @@
             return new SimpleWebSocket(opt);
         }
     });
+    
+    return $.simpleWebSocket;
 }));
