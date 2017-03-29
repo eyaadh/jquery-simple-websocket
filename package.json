@@ -19,6 +19,9 @@
     "url": "https://github.com/jbloemendal/jquery-simple-websocket/issues"
   },
   "license": "(MIT OR Apache-2.0)",
+  "scripts": {
+    "test": "grunt test"
+  },
   "dependencies": {
     "jquery": "3.2.0"
   },
