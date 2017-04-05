@@ -1,0 +1,27 @@
+{
+    "name": "jquery-simple-websocket-example",
+    "version": "1.0.0",
+    "title": "jQuery Simple WebSocket Example",
+    "description": "jQuery Simple WebSocket Example",
+    "homepage": "http://jbloemendal.github.io/jquery-simple-websocket/example/",
+    "author": {
+        "name": "Jannis Bloemendal",
+        "url": "http://jbloemen.blogspot.nl/"
+    },
+    "maintainers": [
+        {
+            "name": "Jannis Bloemendal",
+            "url": "http://jbloemen.blogspot.nl/"
+        }
+    ],
+    "dependencies": {
+        "requirejs": "2.3.3",
+        "jquery-simple-websocket": "1.1.2"
+    },
+    "ignore": [
+      ".DS_Store",
+      ".idea",
+      "tests",
+      "nbproject"
+    ]
+}
