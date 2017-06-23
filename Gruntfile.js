@@ -71,7 +71,7 @@ grunt.loadNpmTasks('grunt-contrib-jshint');
 grunt.loadNpmTasks('grunt-contrib-watch');
 grunt.loadNpmTasks('grunt-exec');
 
-grunt.registerTask('default', ['jshint', 'uglify',  'server', 'jasmine', 'exec:stop_server']);
-grunt.registerTask('test', ['jshint', 'server', 'jasmine', 'exec:stop_server']);
+grunt.registerTask('default', ['jshint', 'uglify',  'server', 'jasmine']);
+grunt.registerTask('test', ['jshint', 'server', 'jasmine']);
 
 };
