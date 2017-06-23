@@ -40,6 +40,13 @@ grunt.initConfig({
             }
         }
     },
+    exec: {
+        stop_server: {
+          command: 'pkill node',
+          stdout: true,
+          stderr: true
+        }
+    },
     watch: {
         files: ['<%= jshint.files %>'],
         tasks: ['jshint']
@@ -62,8 +69,9 @@ grunt.loadNpmTasks('grunt-nodemon');
 grunt.loadNpmTasks('grunt-contrib-jasmine');
 grunt.loadNpmTasks('grunt-contrib-jshint');
 grunt.loadNpmTasks('grunt-contrib-watch');
+grunt.loadNpmTasks('grunt-exec');
 
-grunt.registerTask('default', ['jshint', 'uglify', 'server', 'jasmine']);
-grunt.registerTask('test', ['jshint', 'server', 'jasmine']);
+grunt.registerTask('default', ['jshint', 'uglify',  'server', 'jasmine', 'exec:stop_server']);
+grunt.registerTask('test', ['jshint', 'server', 'jasmine', 'exec:stop_server']);
 
 };

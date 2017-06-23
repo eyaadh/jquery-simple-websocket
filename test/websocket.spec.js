@@ -232,7 +232,7 @@ describe('jQuery Deferred Web Socket Spec', function() {
         simpleWebSocket.send({'cmd': 'spawnServer', 'port': 3001, 'delay': 5000}).done(function() {
             simpleWebSocket.close();
 
-            delayedWebSocket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3001/' });
+            var delayedWebSocket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3001/' });
             delayedWebSocket.connect().done(function() {
                 delayedWebSocket.listen(function(data) {
                     expect(data.msg).toBe('hello echo3');
@@ -249,6 +249,34 @@ describe('jQuery Deferred Web Socket Spec', function() {
 
         });
 
+
+    });
+
+    it('reconnects after timeout', function(done) {
+
+        simpleWebSocket.send({'cmd': 'spawnServer', 'port': 3020, 'delay': 5000}).done(function() {
+            simpleWebSocket.close();
+
+            var socket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3020/',
+                                                   timeout: 1000,
+                                                   attempts: 4 });
+            socket.connect().done(function() {
+                expect(true).toBe(false);
+            }).fail(function() {
+                console.log('expected timeout fail');
+                expect(true).toBe(true); // expected timeout
+
+                socket.close();
+
+                socket.connect().done(function() {
+                     expect(true).toBe(true); // expect succeeding timeout
+                     done();
+                }).fail(function() {
+                    expect(true).toBe(false);
+                });
+            });
+
+        });
 
     });
 

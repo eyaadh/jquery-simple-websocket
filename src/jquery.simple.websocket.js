@@ -80,6 +80,7 @@
 
                 close: function() {
                     self._close.apply(self, []);
+                    self._reset.apply(self, []);
                     return self._api;
                 }
             };
@@ -193,11 +194,16 @@
             return attempt.promise();
         },
 
+
+        _reset: function() {
+            this._reConnectTries = this._prop(this._opt, 'attempts', 60); // default 10min
+            this._reConnectDeferred = $.Deferred();
+        },
+
         _close: function() {
             if (this._ws) {
                 this._ws.close();
                 this._ws = null;
-                this._reConnectDeferred = null;
             }
         },
 
@@ -224,8 +230,7 @@
         _reConnect: function() {
             var self = this;
             if (!this._reConnectDeferred || this._reConnectDeferred.state() !== 'pending') {
-                this._reConnectTries = this._prop(this._opt, 'attempts', 60); // default 10min
-                this._reConnectDeferred = $.Deferred();
+                this._reset();
             }
 
             if (this._ws && this._ws.readyState === 1) {
