@@ -42,7 +42,7 @@ grunt.initConfig({
     },
     exec: {
         stop_server: {
-          command: 'pkill node',
+          command: 'pkill node || true',
           stdout: true,
           stderr: true
         }

@@ -27,7 +27,12 @@
   "bugs": "https://github.com/jbloemendal/jquery-simple-websocket/issues",
   "license": "(MIT OR Apache-2.0)",
   "dependencies": {
-    "jquery": "3.2.0"
+    "grunt-cli": "^1.2.0",
+    "grunt-contrib-jshint": "^1.1.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "http": "3.24.10",
+    "jshint": "^2.9.4",
+    "q": "1.5.0"
   },
   "main": [
     "./src/jquery.simple.websocket.js"
@@ -36,10 +41,16 @@
     ".DS_Store",
     ".idea",
     "tests",
-    "nbproject"
+    "nbproject",
+    "**/.*",
+    "node_modules",
+    "bower_components"
   ],
   "devDependencies": {
     "jquery": "^3.2.1",
     "jasmine-jquery": "^2.1.1"
-  }
+  },
+  "authors": [
+    "Jannis Bloemendal <j.bloemendal@posteo.de>"
+  ]
 }
