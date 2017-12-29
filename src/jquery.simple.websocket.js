@@ -101,36 +101,38 @@
 
             if (!ws) {
                 throw new Error('Error, websocket could not be initialized.');
-            }  
+            }
             return ws;
         },
-        
+
         _bindSocketEvents: function(ws, opt) {
             var self = this;
             $(ws).bind('open', opt.open)
             .bind('close', opt.close)
             .bind('message', function(event) {
                 try {
-                    if (self._dataType && self._dataType.toLowerCase() === 'json') {
-                        var json = JSON.parse(event.originalEvent.data);
-                        opt[event.type].call(this, json);
-                    } else if (self._dataType && self._dataType.toLowerCase() === 'xml') {
-                        var domParser = new DOMParser();
-                        var dom = domParser.parseFromString(event.originalEvent.data, "text/xml");
-                        opt[event.type].call(this, dom);
-                    } else if (opt[event.type]) {
-                        opt[event.type].call(this, event.originalEvent.data);
+                    if (typeof opt.message === 'function') {
+                        if (self._dataType && self._dataType.toLowerCase() === 'json') {
+                            var json = JSON.parse(event.originalEvent.data);
+                            opt.message.call(this, json);
+                        } else if (self._dataType && self._dataType.toLowerCase() === 'xml') {
+                            var domParser = new DOMParser();
+                            var dom = domParser.parseFromString(event.originalEvent.data, "text/xml");
+                            opt.message.call(this, dom);
+                        } else {
+                            opt.message.call(this, event.originalEvent.data);
+                        }
                     }
                 } catch (exception) {
-                    if (opt[event.type]) {
-                        opt[event.type].call(this, event.originalEvent.data);
+                    if (typeof opt.error === 'function') {
+                      opt.error.call(this, exception);
                     }
                 }
-            }).bind('error', function(e) {
-                if (opt.error) {
-                    opt.error.call(this, e);
+            }).bind('error', function(exception) {
+                if (typeof opt.error === 'function') {
+                    opt.error.call(this, exception);
                 }
-            });  
+            });
         },
 
         _webSocket: function(opt) {
@@ -171,12 +173,12 @@
                         attempt.rejectWith.apply(self, [e]);
                     }
                 }
-            };  
+            };
         },
 
         _connect: function() {
             var attempt = $.Deferred();
-            
+
             if (this._ws) {
                 if (this._ws.readyState === 2 || this._ws.readyState === 3) {
                     // close previous socket
@@ -188,9 +190,9 @@
                     return attempt.promise();
                 }
             }
-            
+
             this._ws = this._webSocket($.extend(this._opt, this._getSocketEventHandler(attempt)));
-            
+
             return attempt.promise();
         },
 
@@ -350,6 +352,6 @@
             return new SimpleWebSocket(opt);
         }
     });
-    
+
     return $.simpleWebSocket;
 }));
