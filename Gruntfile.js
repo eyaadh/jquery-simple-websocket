@@ -33,7 +33,7 @@ grunt.initConfig({
         dev: {
             script: 'src/server.js',
             options: {
-                nodeArgs: ['--debug'],
+                nodeArgs: [''],
                 env: {
                     PORT: '8282'
                 }
