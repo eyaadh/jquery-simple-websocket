@@ -7,7 +7,7 @@
 
 # jQuery Simple WebSocket
 
-Send and receive data through a fluent interface, reconnecting automatically.
+Send and receive data through a fluent interface, reconnect automatically.
 
 ## Example
 
