@@ -29,7 +29,7 @@
 }(function($) {
 
     var SimpleWebSocket = function(opt) {
-        if (!this._isNotEmpty(opt, 'url')) {
+        if (this._isEmpty(opt, 'url')) {
             throw new Error('Missing argument, example usage: $.simpleWebSocket({ url: "ws://127.0.0.1:3000" }); ');
         } 
         this._opt = opt;
@@ -185,7 +185,10 @@
             var attempt = $.Deferred();
 
             if (this._ws) {
-                if (2 === this._ws.readyState || 3 === this._ws.readyState) {
+                if (2 === this._ws.readyState) {
+                    // close previous socket
+                    this._ws.close();
+                } else if (3 === this._ws.readyState) {
                     // close previous socket
                     this._ws.close();
                 } else if (0 === this._ws.readyState) {
@@ -200,7 +203,6 @@
 
             return attempt.promise();
         },
-
 
         _reset: function() {
             this._reConnectTries = this._prop(this._opt, 'attempts', 60); // default 10min
@@ -241,7 +243,11 @@
 
         _reConnect: function() {
             var self = this;
-            if (null === this._reConnectDeferred || 'resolved' === this._reConnectDeferred.state() || 'rejected' === this._reConnectDeferred.state()) {
+            if (null === this._reConnectDeferred) {
+                this._reset();
+            } else if ('resolved' === this._reConnectDeferred.state()) {
+                this._reset();
+            } else if ('rejected' === this._reConnectDeferred.state()) {
                 this._reset();
             }
             
@@ -293,22 +299,30 @@
             return -1;
         },
 
-         _isNotEmpty: function(obj, property) {
-            return typeof 'undefined' !== obj &&
-                null !== obj &&
-                'undefined' !== typeof property &&
-                null !== property &&
-                '' !== property &&
-                'undefined' !== typeof obj[property] &&
-                null !== obj[property] &&
-                '' !== obj[property];
+         _isEmpty: function(obj, property) {
+            if (typeof 'undefined' === obj) {
+                return true;
+            } else if (null === obj) {
+                return true;
+            } else if ('undefined' === typeof property) {
+                return true;
+            } else if (null === property) {
+                return true;
+            } else if ('' === property) {
+                return true;
+            } else if ('undefined' === typeof obj[property]) {
+                return true;
+            } else if (null === obj[property]) {
+                return true;
+            } 
+            return false;
          },
 
         _prop: function(obj, property, defaultValue) {
-            if (this._isNotEmpty(obj, property)) {
-               return obj[property];
+            if (this._isEmpty(obj, property)) {
+                return defaultValue;
             }
-            return defaultValue;
+            return obj[property];
         },
 
         _listen: function(listener) {
