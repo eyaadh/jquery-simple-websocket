@@ -29,13 +29,10 @@
 }(function($) {
 
     var SimpleWebSocket = function(opt) {
-        this._opt = null;
-
-        if (this._isNotEmpty(opt, 'url')) {
-            this._opt = opt;
-        } else {
+        if (!this._isNotEmpty(opt, 'url')) {
             throw new Error('Missing argument, example usage: $.simpleWebSocket({ url: "ws://127.0.0.1:3000" }); ');
-        }
+        } 
+        this._opt = opt;
 
         this._ws = null;
         this._reConnectTries = 60;
