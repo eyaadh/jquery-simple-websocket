@@ -21,7 +21,7 @@
 */
 
 (function (factory) {
-  if (typeof module === "object" && typeof module.exports === "object") {
+  if ('object' === typeof module && typeof 'object' === module.exports) {
       module.exports = factory(jQuery);
   } else {
       factory(jQuery);
@@ -34,7 +34,7 @@
         if (this._isNotEmpty(opt, 'url')) {
             this._opt = opt;
         } else {
-            throw new Error("Missing argument, example usage: $.simpleWebSocket({ url: 'ws://127.0.0.1:3000' }); ");
+            throw new Error('Missing argument, example usage: $.simpleWebSocket({ url: "ws://127.0.0.1:3000" }); ');
         }
 
         this._ws = null;
@@ -94,9 +94,9 @@
         _createWebSocket: function(opt) {
             var ws;
             if (opt.protocols) {
-                ws = (typeof window.MozWebSocket !== 'undefined') ? new MozWebSocket(opt.url, opt.protocols) : window.WebSocket ? new WebSocket(opt.url, opt.protocols) : null;
+                ws = ('undefined' !== typeof window.MozWebSocket) ? new MozWebSocket(opt.url, opt.protocols) : window.WebSocket ? new WebSocket(opt.url, opt.protocols) : null;
             } else {
-                ws = (typeof window.MozWebSocket !== 'undefined') ? new MozWebSocket(opt.url) : window.WebSocket ? new WebSocket(opt.url) : null;
+                ws = ('undefined' !== typeof window.MozWebSocket) ? new MozWebSocket(opt.url) : window.WebSocket ? new WebSocket(opt.url) : null;
             }
 
             if (!ws) {
@@ -111,25 +111,25 @@
             .bind('close', opt.close)
             .bind('message', function(event) {
                 try {
-                    if (typeof opt.message === 'function') {
-                        if (self._dataType && self._dataType.toLowerCase() === 'json') {
+                    if ('function' === typeof opt.message) {
+                        if (self._dataType && 'json' === self._dataType.toLowerCase()) {
                             var json = JSON.parse(event.originalEvent.data);
                             opt.message.call(this, json);
-                        } else if (self._dataType && self._dataType.toLowerCase() === 'xml') {
+                        } else if (self._dataType && 'xml' === self._dataType.toLowerCase()) {
                             var domParser = new DOMParser();
-                            var dom = domParser.parseFromString(event.originalEvent.data, "text/xml");
+                            var dom = domParser.parseFromString(event.originalEvent.data, 'text/xml');
                             opt.message.call(this, dom);
                         } else {
                             opt.message.call(this, event.originalEvent.data);
                         }
                     }
                 } catch (exception) {
-                    if (typeof opt.error === 'function') {
+                    if ('function' === typeof opt.error) {
                       opt.error.call(this, exception);
                     }
                 }
             }).bind('error', function(exception) {
-                if (typeof opt.error === 'function') {
+                if ('function' === typeof opt.error) {
                     opt.error.call(this, exception);
                 }
             });
@@ -180,12 +180,12 @@
             var attempt = $.Deferred();
 
             if (this._ws) {
-                if (this._ws.readyState === 2 || this._ws.readyState === 3) {
+                if (2 === this._ws.readyState || 3 === this._ws.readyState) {
                     // close previous socket
                     this._ws.close();
-                } else if (this._ws.readyState === 0) {
+                } else if (0 === this._ws.readyState) {
                     return attempt.promise();
-                } else if (this._ws.readyState === 1) {
+                } else if (1 === this._ws.readyState) {
                     attempt.resolve(this._ws);
                     return attempt.promise();
                 }
@@ -231,7 +231,7 @@
 
         _reConnect: function() {
             var self = this;
-            if (!this._reConnectDeferred || this._reConnectDeferred.state() !== 'pending') {
+            if (!this._reConnectDeferred || 'pending' !== this._reConnectDeferred.state()) {
                 this._reset();
             }
 
@@ -246,11 +246,11 @@
 
         _preparePayload: function(data) {
             var payload;
-            if (this._opt.dataType && this._opt.dataType.toLowerCase() === 'text') {
+            if (this._opt.dataType && 'text' === this._opt.dataType.toLowerCase()) {
                 payload = data;
-            } else if (this._opt.dataType && this._opt.dataType.toLowerCase() === 'xml') {
+            } else if (this._opt.dataType && 'xml' === this._opt.dataType.toLowerCase()) {
                 payload = data;
-            } else if (this._opt.dataType && this._opt.dataType.toLowerCase() === 'json') {
+            } else if (this._opt.dataType && 'json' === this._opt.dataType.toLowerCase()) {
                 payload = JSON.stringify(data);
             } else {
                 payload = JSON.stringify(data); // default
@@ -284,14 +284,14 @@
         },
 
          _isNotEmpty: function(obj, property) {
-            return typeof obj !== 'undefined' &&
-                obj !== null &&
-                typeof property !== 'undefined' &&
-                property !== null &&
-                property !== '' &&
-                typeof obj[property] !== 'undefined' &&
-                obj[property] !== null &&
-                obj[property] !== '';
+            return typeof 'undefined' !== obj &&
+                null !== obj &&
+                'undefined' !== typeof property &&
+                null !== property &&
+                '' !== property &&
+                'undefined' !== typeof obj[property] &&
+                null !== obj[property] &&
+                '' !== obj[property];
          },
 
         _prop: function(obj, property, defaultValue) {
