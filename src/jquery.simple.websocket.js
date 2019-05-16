@@ -89,15 +89,23 @@
     SimpleWebSocket.prototype = {
 
         _createWebSocket: function(opt) {
-            var ws;
+            var ws = null;
             if (opt.protocols) {
-                ws = ('undefined' !== typeof window.MozWebSocket) ? new MozWebSocket(opt.url, opt.protocols) : window.WebSocket ? new WebSocket(opt.url, opt.protocols) : null;
+                if ('undefined' === typeof window.MozWebSocket) {
+                    ws = (window.WebSocket ? new WebSocket(opt.url, opt.protocols) : null); 
+                } else {
+                    ws = new MozWebSocket(opt.url, opt.protocols); 
+                }
             } else {
-                ws = ('undefined' !== typeof window.MozWebSocket) ? new MozWebSocket(opt.url) : window.WebSocket ? new WebSocket(opt.url) : null;
-            }
-
-            if (!ws) {
-                throw new Error('Error, websocket could not be initialized.');
+                if ('undefined' === typeof window.MozWebSocket) {
+                    if (window.WebSocket) {
+                        ws =  new WebSocket(opt.url);
+                    } else {
+                        throw new Error('Error, websocket could not be initialized.');
+                    }
+                } else {
+                    ws = new MozWebSocket(opt.url); 
+                }
             }
             return ws;
         },
