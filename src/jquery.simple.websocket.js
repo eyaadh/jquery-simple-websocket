@@ -215,7 +215,12 @@
         },
 
         _isConnected: function() {
-            return this._ws !== null && this._ws.readyState === 1;
+            if (null === this._ws) {
+                return false;
+            } else if (1 === this._ws.readyState) {
+                return true;
+            }
+            return false;
         },
 
         _reConnectTry: function() {
@@ -236,10 +241,10 @@
 
         _reConnect: function() {
             var self = this;
-            if (!this._reConnectDeferred || 'pending' !== this._reConnectDeferred.state()) {
+            if (null === this._reConnectDeferred || 'resolved' === this._reConnectDeferred.state() || 'rejected' === this._reConnectDeferred.state()) {
                 this._reset();
             }
-
+            
             if (this._ws && this._ws.readyState === 1) {
                 this._reConnectDeferred.resolve(this._ws);
             } else {
@@ -338,7 +343,7 @@
 
         _remove: function(listener) {
             var index = this._indexOfListener(listener);
-            if (index !== -1) {
+            if (0 <= index) {
                 this._listeners[index].deferred.resolve();
                 this._listeners.splice(index, 1);
             }
