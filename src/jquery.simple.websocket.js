@@ -92,7 +92,11 @@
             var ws = null;
             if (opt.protocols) {
                 if ('undefined' === typeof window.MozWebSocket) {
-                    ws = (window.WebSocket ? new WebSocket(opt.url, opt.protocols) : null); 
+                    if (window.WebSocket) {
+                        ws = new WebSocket(opt.url, opt.protocols); 
+                    } else {
+                        throw new Error('Error, websocket could not be initialized.');
+                    }
                 } else {
                     ws = new MozWebSocket(opt.url, opt.protocols); 
                 }
