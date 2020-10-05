@@ -16,7 +16,7 @@
     ],
     "dependencies": {
         "requirejs": "2.3.3",
-        "jquery-simple-websocket": "1.1.2"
+        "jquery-simple-websocket": "1.1.6"
     },
     "ignore": [
       ".DS_Store",

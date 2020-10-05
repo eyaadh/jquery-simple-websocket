@@ -12,7 +12,7 @@ Send and receive data through a fluent interface, reconnect automatically.
 <script type="text/javascript" src="jquery.simple.websocket.js"></script>
 <script type="text/javascript">
     var webSocket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3000/' });
-    
+
     // reconnected listening
     webSocket.listen(function(message) {
         console.log(message.text);
@@ -43,7 +43,10 @@ var socket = $.simpleWebSocket(
         protocols: 'your_protocol', // optional
         timeout: 20000, // optional, default timeout between connection attempts
         attempts: 60, // optional, default attempts until closing connection
-        dataType: 'json' // optional (xml, json, text), default json
+        dataType: 'json', // optional (xml, json, text), default json
+        onOpen: function(event) {}, // optional event listener
+        onClose: function(event) {}, // optional event listener
+        onError: function(event) {}, // optional event listener
     }
 );
 
@@ -72,4 +75,3 @@ $ node src/server.js
 # History
 - jQuery Simple Web Socket has been forked from https://github.com/dchelimsky/jquery-websocket
 - which originates from http://code.google.com/p/jquery-websocket/
-

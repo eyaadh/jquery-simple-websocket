@@ -26,6 +26,14 @@ describe('jQuery Deferred Web Socket Spec', function() {
         });
     });
 
+    it('close connection event', function(done) {
+      simpleWebSocket.connect().done(function() {
+        simpleWebSocket.close().done(function() {
+          expect(true).toBe(true);
+          done();
+        });
+      });
+    });
 
     it('receives echo msg from server', function(done) {
         simpleWebSocket.connect().done(function() {

@@ -31,15 +31,19 @@
     var SimpleWebSocket = function(opt) {
         if (this._isEmpty(opt, 'url')) {
             throw new Error('Missing argument, example usage: $.simpleWebSocket({ url: "ws://127.0.0.1:3000" }); ');
-        } 
+        }
         this._opt = opt;
 
         this._ws = null;
         this._reConnectTries = 60;
         this._reConnectDeferred = null;
+        this._closeDeferred = null;
         this._dataType = this._prop(this._opt, 'dataType', 'json');
 
         this._listeners = [];
+        this._onOpen = this._prop(this._opt, 'onOpen', null);
+        this._onClose = this._prop(this._opt, 'onClose', null);
+        this._onError = this._prop(this._opt, 'onError', null);
 
         var self = this;
         this._api = (function() {
@@ -76,9 +80,12 @@
                 },
 
                 close: function() {
-                    self._close.apply(self, []);
                     self._reset.apply(self, []);
-                    return self._api;
+                    return $.extend(self._api, self._close.apply(self, []));
+                },
+
+                getWsAdapter: function() {
+                    return this._ws;
                 }
             };
         })();
@@ -93,12 +100,12 @@
             if (opt.protocols) {
                 if ('undefined' === typeof window.MozWebSocket) {
                     if (window.WebSocket) {
-                        ws = new WebSocket(opt.url, opt.protocols); 
+                        ws = new WebSocket(opt.url, opt.protocols);
                     } else {
                         throw new Error('Error, websocket could not be initialized.');
                     }
                 } else {
-                    ws = new MozWebSocket(opt.url, opt.protocols); 
+                    ws = new MozWebSocket(opt.url, opt.protocols);
                 }
             } else {
                 if ('undefined' === typeof window.MozWebSocket) {
@@ -108,7 +115,7 @@
                         throw new Error('Error, websocket could not be initialized.');
                     }
                 } else {
-                    ws = new MozWebSocket(opt.url); 
+                    ws = new MozWebSocket(opt.url);
                 }
             }
             return ws;
@@ -155,12 +162,21 @@
             var self = this;
             return {
                 open: function(e) {
+                    if (self._onOpen) {
+                        self._onOpen.apply(self, [e]);
+                    }
                     var sock = this;
                     if (attempt) {
                         attempt.resolve(sock);
                     }
                 },
                 close: function(e) {
+                    if (self._closeDeferred) {
+                        self._closeDeferred.resolve();
+                    }
+                    if (self._onClose) {
+                        self._onClose.apply(self, [e]);
+                    }
                     if (attempt) {
                         attempt.rejectWith(e);
                     }
@@ -175,6 +191,9 @@
                 },
                 error: function(e) {
                     self._ws = null;
+                    if (self._onError) {
+                        self._onError.apply(self, [e]);
+                    }
                     for (var i=0, len=self._listeners.length; i<len; i++) {
                         self._listeners[i].deferred.reject.apply(self, [e]);
                     }
@@ -214,10 +233,12 @@
         },
 
         _close: function() {
+            this._closeDeferred = $.Deferred();
             if (this._ws) {
                 this._ws.close();
                 this._ws = null;
             }
+            return this._closeDeferred.promise();
         },
 
         _isConnected: function() {
@@ -254,7 +275,7 @@
             } else if ('rejected' === this._reConnectDeferred.state()) {
                 this._reset();
             }
-            
+
             if (this._ws && this._ws.readyState === 1) {
                 this._reConnectDeferred.resolve(this._ws);
             } else {
@@ -318,7 +339,7 @@
                 return true;
             } else if (null === obj[property]) {
                 return true;
-            } 
+            }
             return false;
          },
 

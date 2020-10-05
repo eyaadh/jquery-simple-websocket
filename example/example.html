@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <title>jQuery Simple WebSocket Chat Example</title>
     <script type="text/javascript" src="bower_components/jquery/dist/jquery.js"></script>
-    <script type="text/javascript" src="bower_components/jquery-simple-websocket/dist/jquery.simple.websocket.min.js"></script>
+    <script type="text/javascript" src="../src/jquery.simple.websocket.js"></script>
+
 </head>
 <body>
     <h1>jQuery Simple WebSocket Chat Example</h1>
@@ -14,18 +15,17 @@
         var webSocket = $.simpleWebSocket({ url: 'ws://127.0.0.1:3000/' });
 
         webSocket.listen(function(message) {
+            console.log('listen '+message.text);
             $('#content').prepend(message.text+'\n');
         });
 
         $('#message').change(function() {
-
             webSocket.send({ 'text': this.value }).done(function() {
                 console.log('message send');
             }).fail(function(e) {
                 // your error handling e. g.
                 console.log(e);
             });
-
             this.value = '';
         });
 
